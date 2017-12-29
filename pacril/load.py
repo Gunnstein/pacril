@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-import scipy.signal
-import scipy.linalg
-import scipy.optimize
+import scipy
+
 
 __all__ = ['get_coordinate_vector', 'get_loadvector', 'get_twoaxle_wagon',
            'get_bogie_wagon', 'get_jacobs_wagon']
@@ -159,34 +158,14 @@ def get_jacobs_wagon(p, a, b, c, fx=10):
     xp = np.cumsum([0., a-c/2., c, b-c, c, b-c, c, a-c/2.])
     return get_loadvector(p, xp, fx)
 
-def join_loads(*args):
-    return np.concatenate(args)
 
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-    import fatpack
-    xp = np.cumsum([0., 1.5, 2.3, 1.8, 1.8, 1.8, 2.6, 1.6, 1.3, 1.6, 1.2])
-    p = np.array([12., 12., 15., 15., 15., 15., 15., 15., 15])
-    loc1 = get_loadvector(p, xp)
-    xp = np.cumsum([0., 1.5, 2.5, 1.4, 1.4, 1.4, 2.6, 1.6, 1.3, 1.6, 1.2])
-    p = np.array([12., 15., 15., 15., 15., 15., 15., 15., 15])
-    loc2  =get_loadvector(p, xp)
-    f0 = get_bogie_wagon(9., 2.3, 8, 1.6)
-    f1 = get_twoaxle_wagon(12., 2.3, 3.5)
-    f2 = get_bogie_wagon(9., 2.3, 8, 1.6)
-    wags = 9*[f0] + 10*[f1]
-    np.random.shuffle(wags)
-    l = scipy.bartlett(3.5*10) * 2.
-    S0 = np.arange(100.)
-    fig, [axt, axc] = plt.subplots(ncols=2, dpi=144)
-    for loc in [loc1, loc2]:
-        f = join_loads(loc, *wags)
-        z = scipy.convolve(l, f)
-        ranges = fatpack.find_rainflow_ranges(z)
-        N, S = fatpack.find_range_count(ranges, bins=S0)
-        Ncum = N.sum()-np.cumsum(N)
-        xz = get_coordinate_vector(z)
-        axt.plot(xz, z)
-        axc.plot(Ncum, S)
-    plt.legend(["2'C-2'2'", "1'D-2'2'"])
-    plt.show(block=True)
+def join_loads(*args):
+    """Join a sequence of loads.
+
+    Assume `f0`, `f1` and `f2` are load vectors, then
+
+        f = join_loads(f0, f1, f2)
+
+    yields a new load vector where f0-f2 are joined in sequence.
+    """
+    return np.concatenate(args)
