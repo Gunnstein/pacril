@@ -4,7 +4,7 @@ import scipy
 from __init__ import *
 import unittest
 
-class TestPontisim(unittest.TestCase):
+class TestPacril(unittest.TestCase):
     def test_get_coordinate_vector(self):
         est = get_coordinate_vector([0.]*11, 10)
         tru = np.array([0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])

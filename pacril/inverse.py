@@ -4,13 +4,8 @@ import scipy.signal
 import scipy.linalg
 import scipy.optimize
 
-__all__ = ['get_coordinate_vector', 'get_loadvector', 'get_twoaxle_wagon',
-           'get_bogie_wagon', 'get_jacobs_wagon', 'find_influenceline_lstsq',
-           'find_influenceline_fourier', 'find_loadmagnitude_vector']
-
-
-def get_coordinate_vector(y, fx=10.):
-    return np.arange(np.asfarray(y).size, dtype=float) / float(fx)
+__all__ = ['find_influenceline_lstsq', 'find_influenceline_fourier',
+           'find_loadmagnitude_vector']
 
 
 def get_loadvector(p, xp, fx=10.):
