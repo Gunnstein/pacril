@@ -3,12 +3,9 @@ import numpy as np
 import scipy
 
 
-__all__ = ['get_coordinate_vector', 'get_loadvector', 'get_twoaxle_wagon',
+__all__ = ['get_loadvector', 'get_twoaxle_wagon',
            'get_bogie_wagon', 'get_jacobs_wagon']
 
-
-def get_coordinate_vector(y, fx=10.):
-    return np.arange(np.asfarray(y).size, dtype=float) / float(fx)
 
 
 def get_loadvector(p, xp, fx=10.):

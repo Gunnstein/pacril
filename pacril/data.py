@@ -157,20 +157,3 @@ def influencelines():
          0.01, -0.01, -0.01, -0.02, -0.02, -0.04, -0.04, -0.06, -0.06, -0.07])
     return il
 
-
-if __name__ == "__main__":
-    d = np.load('results14_fft.npz')
-    n = 0
-    y = None
-    for n, (key, di) in enumerate(d.items()):
-        if n == 0:
-            y = di
-        else:
-            y += di
-
-    y /= float(n)
-    import matplotlib.pyplot as plt
-    plt.plot(y)
-    plt.show(block=True)
-    print ",".join(map("{0:>6.2f}".format, y))
-
