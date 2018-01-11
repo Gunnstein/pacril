@@ -4,10 +4,9 @@ import matplotlib.pyplot as plt
 import pacril
 
 # First we get some of the data to work with which is available in the package,
-# specifically the 2'C-2'2' locomotive NSB type 30 which was common in the
-# Norwegian  railway network.
-locomotives = pacril.data.locomotives()
-loc = locomotives['1900-1930']["2'C-2'2'"]
+# specifically the 2'C-2'2' locomotive
+locomotives = pacril.data.LOCOMOTIVES
+loc = locomotives["2'C-2'2'"]["a"]
 
 # We then find the load vector for the locomotive.
 f = pacril.get_loadvector(loc['p'], loc['xp'])
@@ -15,7 +14,7 @@ xf = pacril.get_coordinate_vector(f)
 
 # We also load a influence line available in pacril, the strain influence line
 # from a stringer on Hell railway bridge.
-l = pacril.data.influencelines()['hell']['stringer']
+l = pacril.data.INFLUENCELINES['Hell']['stringer']
 xl = pacril.get_coordinate_vector(l)
 
 # We find the response of the NSB type 30 locomotive running across the
@@ -34,7 +33,7 @@ fig = plt.figure(dpi=300)
 axf = plt.subplot2grid((2, 2), (0, 0))
 axf.plot(xf, f)
 axf.set(ylim = (-1, 18), xlim=(-1, 20),
-       title="Load vector NSB {0:s}".format(loc['nsb_class']),
+       title="Load vector",
        ylabel='Axle load [t]', xlabel='Axle position [m]')
 
 axl = plt.subplot2grid((2, 2), (0, 1))
