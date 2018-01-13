@@ -4,7 +4,7 @@ import scipy
 
 
 __all__ = ['get_loadvector', 'get_twoaxle_wagon',
-           'get_bogie_wagon', 'get_jacobs_wagon']
+           'get_bogie_wagon', 'get_jacobs_wagon', 'join_loads']
 
 
 
