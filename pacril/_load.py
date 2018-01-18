@@ -4,7 +4,8 @@ import scipy
 
 
 __all__ = ['get_loadvector', 'get_twoaxle_wagon',
-           'get_bogie_wagon', 'get_jacobs_wagon', 'join_loads']
+           'get_bogie_wagon', 'get_jacobs_wagon', 'join_loads',
+           'find_daf_EC3']
 
 
 
@@ -166,3 +167,28 @@ def join_loads(*args):
     yields a new load vector where f0-f2 are joined in sequence.
     """
     return np.concatenate(args)
+
+
+def find_daf_EC3(v, L):
+    """Dynamic amplification factor according to EC1-2 annex D
+
+    Arguments
+    ---------
+    v : float
+        Speed in km / h, should be smaller than 200 km/h.
+    L : float
+        Determinant length in meters.
+    n0 : float
+        The first natural bending frequency of the bridge loaded by permanent
+        actions.
+    """
+    if np.any(v > 200):
+        raise ValueError("Speed must be smaller than 200 km/h")
+    vms = v / 3.6
+    if L <= 20:
+        K = vms / 160.
+    else:
+        K = vms / (47.16*L**0.408)
+    phi1 = K / ( 1 - K + K**4)
+    phi11 = 0.56 * np.exp(-L**2/100.)
+    return 1 + .5*(phi1+.5*phi11)
