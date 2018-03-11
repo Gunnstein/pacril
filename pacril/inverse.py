@@ -98,3 +98,49 @@ def find_loadmagnitude_vector(z, l, xp, fx=10.):
     IL = scipy.linalg.toeplitz(l1, np.zeros(Nf))[:, nxp]
     p, _, _, _ = np.linalg.lstsq(IL, z)
     return p
+
+
+def find_lag_phase_method(y1, y2):
+    """Determines the lag between two signals by correlation
+
+    The function returns the number of sample points necessary to achieve
+    maximum correlation between signal y1 and y2.
+
+    Arguments
+    ---------
+    y1, y2 : ndarray
+        Signals to find the lag between.
+
+    Returns
+    -------
+    int
+        The number of sample points to skew y1 to achieve maximum correlation
+        with y2
+    """
+    corr = np.correlate(y1, y2, mode='full')
+    nmax = np.argmax(corr)
+    nlag =  int(round(y2.size - nmax))
+    return nlag
+
+def find_speed_phase_method(y1, y2, dx, sampling_rate):
+    """Determines the speed by phase correlation method
+
+    The function uses the phase correlation to determine the speed
+
+   Arguments
+    ---------
+    y1, y2 : ndarray
+        Signals to find the lag between.
+    dx : float
+        Spatial separation along load path between sensors y1 and y2.
+    sampling_rate : float
+        Temporal sampling rate of signal (in Samples pr second).
+
+    Returns
+    -------
+    float
+        Estimated speed
+    """
+    nlag = find_lag_phase_method(y1, y2)
+    Dt = float(nlag) / float(sampling_rate)
+    return dx / Dt
