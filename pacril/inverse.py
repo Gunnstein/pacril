@@ -3,7 +3,8 @@ import numpy as np
 import scipy
 
 __all__ = ['find_influenceline_lstsq', 'find_influenceline_fourier',
-           'find_loadmagnitude_vector']
+           'find_loadmagnitude_vector', 'find_influenceline_fastmatrix',
+           'find_lag_phase_method']
 
 
 def find_influenceline_lstsq(z, f):
@@ -76,6 +77,43 @@ def find_influenceline_fourier(z, f, alpha=0.):
     L = Z * np.conjugate(F) / (np.abs(F)**2 + alpha)
     l = np.fft.irfft(L)[:Nl]
     return l
+
+
+def find_influenceline_fastmatrix(z, f):
+    """Find influenceline from response and load vector by fast lstsq method.
+
+    By deconvolving the measured response `z` and the load vector `f` the
+    influenceline vector `l` can be extracted. The sparseness of the load
+    vector is exploited with the Levinson-Durbin algorithm to solve the
+    system in O(Nl^2) time instead of O(NzNl^2) for the conventional
+    matrix method.
+
+    For more informations see
+        G. T. Froeseth, A. Ronnquist, D. Cantero, O. Oiseth. Influenceline
+        extraction by deconvolution in the frequency domain. Computer and
+        Structures 189:21-30 (2017)
+
+    Arguments
+    ---------
+    z : ndarray
+        Response vector.
+
+    f : ndarray
+        Load vector.
+
+    Returns
+    -------
+    ndarray
+        The estimated influence line
+    """
+    fpadded = np.pad(f, (0, z.size - f.size), mode='constant',
+                 constant_values=(0, 0))
+    F = linalg.toeplitz(fpadded, np.zeros(nl, dtype=np.double))
+    Fcsr = sparse.csr_matrix(F)
+    FTF = Fcsr.transpose().dot(Fcsr)
+    FTz = Fcsr.transpose().dot(z)
+    return linalg.solve_toeplitz(
+        (FTF.getcol(0).toarray(), FTF.getrow(0).toarray()), FTz)
 
 
 def find_loadmagnitude_vector(z, l, xp, fx=10.):
