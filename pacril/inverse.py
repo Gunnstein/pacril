@@ -106,13 +106,13 @@ def find_influenceline_fastmatrix(z, f):
     ndarray
         The estimated influence line
     """
-    fpadded = np.pad(f, (0, z.size - f.size), mode='constant',
-                 constant_values=(0, 0))
-    F = linalg.toeplitz(fpadded, np.zeros(nl, dtype=np.double))
-    Fcsr = sparse.csr_matrix(F)
+    fpad = np.pad(f, (0, z.size - f.size), mode='constant',
+                  constant_values=(0, 0))
+    F = scipy.linalg.toeplitz(fpad, np.zeros(z.size-f.size+1, dtype=np.double))
+    Fcsr = scipy.sparse.csr_matrix(F)
     FTF = Fcsr.transpose().dot(Fcsr)
     FTz = Fcsr.transpose().dot(z)
-    return linalg.solve_toeplitz(
+    return scipy.linalg.solve_toeplitz(
         (FTF.getcol(0).toarray(), FTF.getrow(0).toarray()), FTz)
 
 
