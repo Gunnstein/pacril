@@ -119,8 +119,7 @@ def find_lag_phase_method(y1, y2):
     """
     corr = np.correlate(y1, y2, mode='full')
     nmax = np.argmax(corr)
-    nlag =  int(round(y2.size - nmax))
-    return nlag
+    return int(round(y2.size - nmax)) - 1
 
 def find_speed_phase_method(y1, y2, dx, sampling_rate):
     """Determines the speed by phase correlation method
