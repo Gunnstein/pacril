@@ -118,10 +118,48 @@ class BaseVehicle(BaseLoad):
 
 
 class Locomotive(BaseVehicle):
-    """Data and functionality to generate loads from locomotives
+    """Define a generic locomotive, see also NorwegianLocomotive.
 
-    Interfaces to the locomotives defined in the data modules of the pacril
-    package.
+    The locmomotive is defined by magnitudes p and geometry xp, see figure
+    below.
+
+        Loads:          p1  p2      p3  p4
+                         |  |        |  |
+                         |  |        |  |
+                         V  V        V  V
+        Geometry:   |----|--|--------|--|----|----->
+                    x0  x1  x2       x3 x4   x5    xp
+                    ^                        ^
+                    |  <=== direction <===   |
+              start of load             end of load
+
+    Arguments
+    ---------
+    p : float or ndarray
+        Defines the load magnitude, if p is a float it assumes equal load at
+        all load positions, if p is an ndarray it defines each load magnitude
+        individually.
+
+    xp : ndarray
+        Defines the geometry of the load, i.e the start, end and load
+        positions. The array also defines the number of loads,
+        i.e (n_loads = xp.size-2).
+    """
+    def __init__(self, xp, p):
+        super(Locomotive, self).__init__()
+        self.xp = xp
+        self.p = p
+        self.pempty = p
+
+
+class NorwegianLocomotive(Locomotive):
+    """Define a Norwegian locomotive by its litra and sublitra.
+
+    For more information see
+
+    G. Frøseth, A. Rønnquist. Evolution of load conditions in the Norwegian
+        railway network and imprecision of historic railway loading data. 2018
+
 
     Arguments
     ---------
@@ -130,13 +168,10 @@ class Locomotive(BaseVehicle):
         defined in the data module
     """
     def __init__(self, litra, sublitra):
-        super(Locomotive, self).__init__()
         self.litra = litra
         self.sublitra = sublitra
         loc = LOCOMOTIVES[litra][sublitra]
-        self.xp = loc['xp']
-        self.p = loc['p']
-        self.pempty = loc['p']
+        super(NorwegianLocomotive, self).__init__(loc['xp'], loc['p'])
 
 
 class TwoAxleWagon(BaseVehicle):
@@ -236,9 +271,127 @@ class JacobsWagon(BaseVehicle):
         self.pempty = pempty
 
 
-class TestLocomotive(unittest.TestCase):
+class Train(BaseVehicle):
+    """Defines a train
+
+    A train consists of a locomotive and wagons.
+
+    Arguments
+    ---------
+    locomotive : Locomotive
+        The locomotive of the train
+
+    wagons : list
+        A list whos elements are Wagon instances.
+
+    Example
+    -------
+        >>> import numpy as np
+        >>> import matplotlib.pyplot as plt
+        >>> import pacril
+        >>>
+        >>> loc = pacril.NorwegianLocomotive("Bo'Bo'", "a")
+        >>> wagons = [pacril.TwoAxleWagon(p, 3., 7., 5.)
+                      for p in np.arange(10., 21., 1.)]
+        >>> train = pacril.Train(loc, wagons)
+        >>>
+        >>> l = pacril.get_il_simply_supported_beam(5., .5)
+        >>> z = train.apply(l)
+        >>> xz = pacril.get_coordinate_vector(z)
+        >>>
+        >>> plt.plot(xz, z)
+        >>> plt.show()
+    """
+    def __init__(self, locomotive, wagons):
+        super(Train, self).__init__()
+        self.locomotive = locomotive
+        self.wagons = wagons
+        self._set_xp_and_p()
+
+    def _set_xp_and_p(self):
+        dxp = np.diff(self.locomotive.xp)
+        pitch = dxp[:-1]
+        x0 = dxp[-1]
+        p = self.locomotive.p
+        pempty = self.locomotive.pempty
+        if self.nwagons > 0:
+            for wagon in self.wagons:
+                dxp = np.diff(wagon.xp)
+                dxp[0] = dxp[0] + x0
+                pitch = np.concatenate((pitch, dxp[:-1]))
+                x0 = dxp[-1]
+                p = np.concatenate((p, wagon.p))
+                pempty = np.concatenate((pempty, wagon.pempty))
+        pitch = np.concatenate((pitch, np.array([x0])))
+        xp = np.insert(np.cumsum(pitch), 0, 0.)
+        for d in ["xp", "p", "pempty"]:
+            try:
+                del self.__dict__[d]
+            except KeyError:
+                pass
+        self.xp, self.p, self.pempty = xp, p, pempty
+
+    @property
+    def nwagons(self):
+        return len(self.wagons)
+
+    def swap_locomotive(self, locomotive):
+        """Swap out the locomotive
+
+        Arguments
+        ---------
+        locomotive : Locomotive
+            The locmotive to insert.
+        """
+        self.locomotive = locomotive
+        self._set_xp_and_p()
+
+    def swap_wagon(self, ix, wagon):
+        """Swap out wagon with new wagon
+
+        Arguments
+        ---------
+        ix : int
+            The index of the wagon to swap out
+
+        wagon : Wagon
+            The wagon to swap in.
+        """
+        self.wagons[ix] = wagon
+        self._set_xp_and_p()
+
+    def insert_wagon(self, ix, wagon):
+        """Insert a new wagon before ix
+
+        Arguments
+        ---------
+        ix : int
+            The index to insert the wagon infront of.
+
+        wagon : Wagon
+            The wagon to insert.
+        """
+        self.wagons.insert(ix, wagon)
+        self._set_xp_and_p()
+
+    def remove_wagon(self, ix):
+        """Remove wagon from train
+
+        Arguments
+        ---------
+        ix : int
+            The index of the wagon to remove
+
+        wagon : Wagon
+            The wagon to swap in.
+        """
+        self.wagons.pop(ix)
+        self._set_xp_and_p()
+
+
+class TestNorwegianLocomotive(unittest.TestCase):
     def setUp(self):
-        self.load = Locomotive("Bo'Bo'", "b")
+        self.load = NorwegianLocomotive("Bo'Bo'", "b")
         self.xptrue = np.array([0., 2.2, 5.4, 9.5, 12.7, 14.9])
         self.ptrue = np.array([18., 18., 18., 18.])
         self.naxles = 4
@@ -276,7 +429,7 @@ class TestLocomotive(unittest.TestCase):
         np.testing.assert_allclose(self.load.loadvector, self.loadvector)
 
 
-class TestTwoAxleWagon(TestLocomotive):
+class TestTwoAxleWagon(TestNorwegianLocomotive):
     def setUp(self):
         self.load = TwoAxleWagon(np.array([13., 21.]), 4., 9.,
                                  np.array([1., 3.]))
@@ -300,7 +453,7 @@ class TestTwoAxleWagon(TestLocomotive):
             ])
 
 
-class TestBogieWagon(TestLocomotive):
+class TestBogieWagon(TestNorwegianLocomotive):
     def setUp(self):
         self.load = BogieWagon(5., 1., 2., 1., 4.)
         self.xptrue = np.array([0., 0.5, 1.5, 2.5, 3.5, 4.])
@@ -314,7 +467,7 @@ class TestBogieWagon(TestLocomotive):
             0.,  0.])
 
 
-class TestJacobsWagon(TestLocomotive):
+class TestJacobsWagon(TestNorwegianLocomotive):
     def setUp(self):
         p = np.array([9., 9., 13., 14., 10., 11.])
         self.load = JacobsWagon(p, 1., 2., 1., 7.)
@@ -330,14 +483,36 @@ class TestJacobsWagon(TestLocomotive):
             0.0, 0.0, 0.0, 11.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 
 
+class TestTrain(TestNorwegianLocomotive):
+    def setUp(self):
+        loc = Locomotive(np.array([0., 2., 4., 6.]), np.array([1., 1.]))
+        wagons = [TwoAxleWagon(2., 2., 4., 1.)]
+        self.load = Train(loc, wagons)
+        self.xptrue = np.array([0., 2., 4., 8., 12., 14.])
+        self.ptrue = np.array([1., 1., 2., 2.])
+        self.naxles = 4
+        self.goods_transported = 2.*(2.-1.)
+        self.loadvector = np.array([
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 2., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 2., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0.])
+
+    def test_remove_and_insert_wagon(self):
+        loc = self.load.locomotive.copy()
+        wagons = copy.deepcopy(self.load.wagons)
+        self.load.remove_wagon(0)
+        np.testing.assert_raises(
+            AssertionError, np.testing.assert_array_equal,
+            self.load.loadvector, self.loadvector)
+        self.load.insert_wagon(0, wagons[0])
+        np.testing.assert_array_equal(self.loadvector, self.loadvector)
+
+
 if __name__ == '__main__':
     unittest.main()
-    # from  _influence_line import get_il_simply_supported_beam
-    # l  = get_il_simply_supported_beam(13., .5)
-    # loc = Locomotive("2'C-2'2'", "a")
-    # z = loc.apply(l)
-
-
-    # import matplotlib.pyplot as plt
-    # plt.plot(z)
-    # plt.show(block=True)
