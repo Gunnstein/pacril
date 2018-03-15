@@ -10,7 +10,7 @@ class TestPacril(unittest.TestCase):
         tru = np.array([0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
         np.testing.assert_almost_equal(est, tru, 2)
 
-    def test_get_load_vector(self):
+    def test_get_loadvector(self):
         f_est = get_loadvector(10., np.array([0., 1.0, 3.0, 5.0]), 10)
         f_true = np.array([
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,10.0, 0.0, 0.0,
@@ -19,8 +19,8 @@ class TestPacril(unittest.TestCase):
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
         np.testing.assert_almost_equal(f_est, f_true, 2)
 
-    def test_get_twoaxle_wagon(self):
-        f_est = get_twoaxle_wagon([10., 11], 1.6, 9., 10)
+    def test_get_loadvector_twoaxle_wagon(self):
+        f_est = get_loadvector_twoaxle_wagon([10., 11], 1.6, 9., 10)
         f_true = np.array([
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
             0.0, 0.0, 0.0,10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -34,8 +34,9 @@ class TestPacril(unittest.TestCase):
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
         np.testing.assert_almost_equal(f_est, f_true, 2)
 
-    def test_get_bogie_wagon(self):
-        f_est = get_bogie_wagon([10., 11., 12., 13], 2.5, 9.9, 1.8, 10)
+    def test_get_loadvector_bogie_wagon(self):
+        f_est = get_loadvector_bogie_wagon([10., 11., 12., 13],
+                                           2.5, 9.9, 1.8, 10)
         f_true = np.array([
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
             0.0, 0.0, 0.0,10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -51,8 +52,8 @@ class TestPacril(unittest.TestCase):
             0.0, 0.0, 0.0, 0.0])
         np.testing.assert_almost_equal(f_est, f_true, 2)
 
-    def test_get_jacobs_wagon(self):
-        f_est = get_jacobs_wagon(
+    def test_get_loadvector_jacobs_wagon(self):
+        f_est = get_loadvector_jacobs_wagon(
             [10., 11., 12., 13., 14., 15.], 2.5, 15., 1.8, 10.)
         f_true = np.array([
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -86,7 +87,7 @@ class TestPacril(unittest.TestCase):
 
     def test_find_influenceline_lstsq(self):
         l_true = scipy.bartlett(5*10)
-        f = get_jacobs_wagon(
+        f = get_loadvector_jacobs_wagon(
             [10., 20., 13., 19., 21., 7], 2.5, 17., 1.8, 10)
         z = np.convolve(f, l_true)
         l_est = find_influenceline_lstsq(z, f)
@@ -94,7 +95,7 @@ class TestPacril(unittest.TestCase):
 
     def test_find_influenceline_fourier(self):
         l_true = scipy.bartlett(5*10)
-        f = get_jacobs_wagon(
+        f = get_loadvector_jacobs_wagon(
             [10., 20., 13., 19., 21., 7], 2.5, 17., 1.8, 10)
         z = np.convolve(f, l_true)
         l_est = find_influenceline_fourier(z, f)
