@@ -22,15 +22,79 @@ class BaseLoad(object):
     def copy(self):
         return copy.deepcopy(self)
 
-    @property
-    def naxles(self):
-        return len(self.xp)-2
-
     def _set_loadvector(self):
         try:
             self.loadvector = get_loadvector(self.p, self.xp, self.fx)
         except AttributeError:
             pass
+
+    def apply(self, influence_line):
+        """Apply the load to the influence line to obtain the response
+
+        Arguments
+        ---------
+        influence_line : ndarray
+            The influence line to apply the load to.
+
+        Returns
+        -------
+        ndarray
+            The response of the signal after applying the load
+        """
+        f = self.loadvector
+        return np.convolve(f, l, mode='full')
+
+    def __setattr__(self, name, value):
+        super(BaseLoad, self).__setattr__(name, value)
+        if (name=="xp") | (name=="p") | (name=="fx"):
+            self._set_loadvector()
+
+
+class Load(BaseLoad):
+    """Define a generic load object by loadmagnitude p and geometry vector xp.
+
+    The load is defined by magnitudes p and geometry xp, see figure below.
+
+        Loads:          p1  p2      p3  p4
+                         |  |        |  |
+                         |  |        |  |
+                         V  V        V  V
+        Geometry:   |----|--|--------|--|----|----->
+                    x0  x1  x2       x3 x4   x5    xp
+                    ^                        ^
+                    |  <=== direction <===   |
+              start of load             end of load
+
+    Arguments
+    ---------
+    p : float or ndarray
+        Defines the load magnitude, if p is a float it assumes equal load at
+        all load positions, if p is an ndarray it defines each load magnitude
+        individually.
+
+    xp : ndarray
+        Defines the geometry of the load, i.e the start, end and load
+        positions. The array also defines the number of loads,
+        i.e (n_loads = xp.size-2).
+    """
+    def __init__(self, xp, p):
+        super(Load, self).__init__()
+        self.xp = xp
+        self.p = p
+
+    @property
+    def nloads(self):
+        return len(self.xp)-2
+
+
+class BaseVehicle(BaseLoad):
+    """Parent object of vehicles, extends the definition of load to contain
+    a vehicle properties and methods such as definition of axles and goods.
+
+    """
+    @property
+    def naxles(self):
+        return len(self.xp)-2
 
     def _set_goods_transported(self):
         try:
@@ -38,15 +102,22 @@ class BaseLoad(object):
         except AttributeError:
             pass
 
+    def _get_axleloadvector(self, p):
+        if isinstance(p, float):
+            return np.array([p] * self.naxles)
+        else:
+            return np.array(p)
+
     def __setattr__(self, name, value):
-        super(BaseLoad, self).__setattr__(name, value)
-        if (name=="xp") | (name=="p") | (name=="fx"):
-            self._set_loadvector()
-        if (name=="p") | (name=="pempty"):
+        if (name == 'p') | (name == 'pempty'):
+            value = self._get_axleloadvector(value)
+            super(BaseVehicle, self).__setattr__(name, value)
             self._set_goods_transported()
+        else:
+            super(BaseVehicle, self).__setattr__(name, value)
 
 
-class Locomotive(BaseLoad):
+class Locomotive(BaseVehicle):
     """Data and functionality to generate loads from locomotives
 
     Interfaces to the locomotives defined in the data modules of the pacril
@@ -68,23 +139,7 @@ class Locomotive(BaseLoad):
         self.pempty = loc['p']
 
 
-class BaseWagon(BaseLoad):
-    def __init__(self):
-        super(BaseWagon, self).__init__()
-
-    def _get_axleloadvector(self, p):
-        if isinstance(p, float):
-            return np.array([p] * self.naxles)
-        else:
-            return np.array(p)
-
-    def __setattr__(self, name, value):
-        if (name == 'p') | (name == 'pempty'):
-            value = self._get_axleloadvector(value)
-        super(BaseWagon, self).__setattr__(name, value)
-
-
-class TwoAxleWagon(BaseWagon):
+class TwoAxleWagon(BaseVehicle):
     """Define a twoaxle wagon
 
      The two axle wagon is defined by axleloads p and geometry parameter a and
@@ -115,7 +170,7 @@ class TwoAxleWagon(BaseWagon):
         self.pempty = pempty
 
 
-class BogieWagon(BaseWagon):
+class BogieWagon(BaseVehicle):
     """Define a bogie wagon
 
     The bogie wagon is defined by axleloads p and geometry parameters a, b and
@@ -148,7 +203,7 @@ class BogieWagon(BaseWagon):
         self.pempty = pempty
 
 
-class JacobsWagon(BaseWagon):
+class JacobsWagon(BaseVehicle):
     """Define a jacobs wagon
 
     The jacobsbogie wagon is defined by axleloads p and geometry parameters a,
@@ -277,3 +332,12 @@ class TestJacobsWagon(TestLocomotive):
 
 if __name__ == '__main__':
     unittest.main()
+    # from  _influence_line import get_il_simply_supported_beam
+    # l  = get_il_simply_supported_beam(13., .5)
+    # loc = Locomotive("2'C-2'2'", "a")
+    # z = loc.apply(l)
+
+
+    # import matplotlib.pyplot as plt
+    # plt.plot(z)
+    # plt.show(block=True)
