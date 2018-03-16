@@ -3,12 +3,6 @@ import numpy as np
 import copy
 import unittest
 from _load import *
-from data import LOCOMOTIVES
-import logging
-
-logging.basicConfig(level=logging.DEBUG)
-
-debug = logging.debug
 
 
 class BaseLoad(object):
@@ -150,28 +144,6 @@ class Locomotive(BaseVehicle):
         self.xp = xp
         self.p = p
         self.pempty = p
-
-
-class NorwegianLocomotive(Locomotive):
-    """Define a Norwegian locomotive by its litra and sublitra.
-
-    For more information see
-
-    G. Frøseth, A. Rønnquist. Evolution of load conditions in the Norwegian
-        railway network and imprecision of historic railway loading data. 2018
-
-
-    Arguments
-    ---------
-    litra, sublitra: str
-        The litra (e.g "B'B'") and sublitra (e.g "a") for the locomotives
-        defined in the data module
-    """
-    def __init__(self, litra, sublitra):
-        self.litra = litra
-        self.sublitra = sublitra
-        loc = LOCOMOTIVES[litra][sublitra]
-        super(NorwegianLocomotive, self).__init__(loc['xp'], loc['p'])
 
 
 class TwoAxleWagon(BaseVehicle):
@@ -381,19 +353,119 @@ class Train(BaseVehicle):
         ---------
         ix : int
             The index of the wagon to remove
-
-        wagon : Wagon
-            The wagon to swap in.
         """
         self.wagons.pop(ix)
         self._set_xp_and_p()
 
 
-class TestNorwegianLocomotive(unittest.TestCase):
+class RollingStock(object):
+    """Rolling stock contains the possible sets of locomotives and wagons.
+
+    A rolling stock object contains locomotives and wagons and methods to
+    generate and assemble trains.
+
+    TODO: Create a unit test for this object.
+
+    Arguments
+    ---------
+    locomotives, wagons : list
+        A list of locomotives and wagons that are present in the rolling stock.
+    loc_pmf, wagon_pmf : ndarray
+        The probability mass funcitons (probabilities) of selecting each of
+        the locomotives. Same size as locomotives/wagons.
+    """
+    def __init__(self, locomotives, wagons, loc_pmf=None, wagon_pmf=None):
+        self.locomotives = locomotives
+        self.wagons = wagons
+        Nloc, Nwag = len(locomotives), len(wagons)
+        self.locomotive_pmf = loc_pmf
+        self.wagon_pmf = wagon_pmf
+
+    @property
+    def nlocomotives(self):
+        return len(self.locomotives)
+
+    @property
+    def nwagons(self):
+        return len(self.wagons)
+
+    def choose_locomotive(self):
+        if self.nlocomotives == 0:
+            return []
+        else:
+            return np.random.choice(self.locomotives, p=self.locomotive_pmf)
+
+    def choose_wagons(self, num_wagons):
+        if self.nwagons == 0:
+            return []
+        else:
+            return list(np.random.choice(
+                self.wagons, size=num_wagons, p=self.wagon_pmf))
+
+    def get_train(self, num_wagons):
+        """Returns a train instance assembled randomly from the rolling stock.
+
+        Arguments
+        ---------
+        num_wagons : int
+            The number of wagons to assemble the train with.
+        """
+        loc = self.choose_locomotive()
+        wagons = self.choose_wagons(num_wagons)
+        return Train(loc, wagons)
+
+    def get_neighbor_train(self, train, fixed_length_trains=True, Nwag_min=10,
+                           Nwag_max=50):
+        """Returns the neighbor train.
+
+        The neighbor train is defined as the train that has one by adding,
+        removing wagons or swapping the locomotive or a wagon.
+
+        This function is very useful in simulated annealing where the
+        neighboring solution can be determined by swapping out one of the
+        elements.
+
+        Arguments
+        ---------
+        train : Train
+            The train instance to find the neighbor for.
+        fixed_length_trains : bool
+            Wether or not the new train should have the same number of wagons
+            as the previous train or not.
+        """
+        Nwag = train.nwagons
+        train_new = train.copy()
+
+        if fixed_length_trains:
+            n = np.random.randint(-1, Nwag)
+        else:
+            if Nwag_min < Nwag < Nwag_max:
+                n = np.random.randint(-3, Nwag)
+            elif Nwag == Nwag_min:
+                n = np.random.randint(-2, Nwag)
+            elif Nwag == Nwag_max:
+                n = np.random.randint(-2, Nwag)
+                if n == -2:
+                    n = -3
+        if n == -3:
+            n = np.random.randint(0, Nwag)
+            train_new.remove_wagon(n)
+        if n == -2:
+            n = np.random.randint(0, Nwag)
+            train_new.insert(n, self.choose_wagons(1)[0])
+        elif n == -1:
+            train_new.swap_locomotive(self.choose_locomotive())
+        else:
+            train_new.swap_wagon(n, self.choose_wagons(1)[0])
+        return train_new
+
+
+class TestLocomotive(unittest.TestCase):
     def setUp(self):
-        self.load = NorwegianLocomotive("Bo'Bo'", "b")
         self.xptrue = np.array([0., 2.2, 5.4, 9.5, 12.7, 14.9])
         self.ptrue = np.array([18., 18., 18., 18.])
+        self.load = Locomotive(self.xptrue.copy(), self.ptrue.copy())
+
         self.naxles = 4
         self.goods_transported = 0.
         self.loadvector = np.array([
@@ -429,7 +501,7 @@ class TestNorwegianLocomotive(unittest.TestCase):
         np.testing.assert_allclose(self.load.loadvector, self.loadvector)
 
 
-class TestTwoAxleWagon(TestNorwegianLocomotive):
+class TestTwoAxleWagon(TestLocomotive):
     def setUp(self):
         self.load = TwoAxleWagon(np.array([13., 21.]), 4., 9.,
                                  np.array([1., 3.]))
@@ -453,7 +525,7 @@ class TestTwoAxleWagon(TestNorwegianLocomotive):
             ])
 
 
-class TestBogieWagon(TestNorwegianLocomotive):
+class TestBogieWagon(TestLocomotive):
     def setUp(self):
         self.load = BogieWagon(5., 1., 2., 1., 4.)
         self.xptrue = np.array([0., 0.5, 1.5, 2.5, 3.5, 4.])
@@ -467,7 +539,7 @@ class TestBogieWagon(TestNorwegianLocomotive):
             0.,  0.])
 
 
-class TestJacobsWagon(TestNorwegianLocomotive):
+class TestJacobsWagon(TestLocomotive):
     def setUp(self):
         p = np.array([9., 9., 13., 14., 10., 11.])
         self.load = JacobsWagon(p, 1., 2., 1., 7.)
@@ -483,7 +555,7 @@ class TestJacobsWagon(TestNorwegianLocomotive):
             0.0, 0.0, 0.0, 11.0, 0.0, 0.0, 0.0, 0.0, 0.0])
 
 
-class TestTrain(TestNorwegianLocomotive):
+class TestTrain(TestLocomotive):
     def setUp(self):
         loc = Locomotive(np.array([0., 2., 4., 6.]), np.array([1., 1.]))
         wagons = [TwoAxleWagon(2., 2., 4., 1.)]
@@ -514,5 +586,37 @@ class TestTrain(TestNorwegianLocomotive):
         np.testing.assert_array_equal(self.loadvector, self.loadvector)
 
 
+class TestRollingStock(TestLocomotive):
+    def setUp(self):
+        xploc = np.array([0., 2.2, 5.4, 9.5, 12.7, 14.9])
+        ploc = np.array([18., 18., 18., 18.])
+        locs = [Locomotive(xploc, ploc)]
+        wags = [TwoAxleWagon(4., 1., 2., 2.)]
+        self.rs = RollingStock(locs, wags)
+        self.load = self.rs.get_train(15)
+
+        self.traintrue = Train(locs[0], wags*15)
+        self.xptrue = self.traintrue.xp
+        self.ptrue = self.traintrue.p
+        self.naxles = self.traintrue.naxles
+        self.goods_transported = self.traintrue.goods_transported
+        self.loadvector = self.traintrue.loadvector
+        self.nwagontrue = self.traintrue.nwagons
+
+
+    # def test_train_loadvector
+
+
 if __name__ == '__main__':
     unittest.main()
+    # from data import NorwegianLocomotive
+    # import matplotlib.pyplot as plt
+    # locs = [NorwegianLocomotive(a, b) for a in ["Bo'Bo'"] for b in ["a"]]
+    # wagons = []
+    # rs = RollingStock(locs, wagons)
+    # train  = rs.get_train(12)
+    # for _ in xrange(100):
+    #     train2 = rs.get_neighbor_train(train, fixed_length_trains=True)
+    #     plt.plot(train2.loadvector-train.loadvector)
+
+    # plt.show(block=True)
