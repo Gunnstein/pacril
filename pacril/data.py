@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import scipy.stats as stats
-from _load import Locomotive, RollingStock
+import _load
 
 
 LOCOMOTIVES = {
@@ -248,7 +248,7 @@ INFLUENCELINES = {
 }
 
 
-class NorwegianLocomotive(Locomotive):
+class NorwegianLocomotive(_load.Locomotive):
     """Define a Norwegian locomotive by its litra and sublitra.
 
     For more information, see
@@ -271,7 +271,7 @@ class NorwegianLocomotive(Locomotive):
         super(NorwegianLocomotive, self).__init__(loc['xp'], loc['p'])
 
 
-class NorwegianRollingStock(RollingStock):
+class NorwegianRollingStock(_load.RollingStock):
     """Rolling stock for different periods and train types in Norway
 
     The rolling stock for different periods in the Norwegian railway network
@@ -307,24 +307,24 @@ class NorwegianRollingStock(RollingStock):
         if period == 1: # -- 1900
             if ttl == "ls" or ttl == "p":
                 if ttl == "ls":
-                    locs = [pacril.data.NorwegianLocomotive("1'C1't", "a")]
+                    locs = [NorwegianLocomotive("1'C1't", "a")]
                 elif ttl == "p":
-                    locs = [pacril.data.NorwegianLocomotive("2'B-2", sublitra)
+                    locs = [NorwegianLocomotive("2'B-2", sublitra)
                             for sublitra in ["a", "b", "c"]]
-                wags = [pacril.BogieWagon(p, a, b, c, 5.0)
+                wags = [_load.BogieWagon(p, a, b, c, 5.0)
                         for p in [5.0, 9.0]
                         for a in [3.0, 3.2]
                         for b in [11.2, 11.9]
                         for c in [2.0, 2.1]]
             elif ttl == "f":
-                locs = [pacril.data.NorwegianLocomotive("1'C-3", sublitra)
+                locs = [NorwegianLocomotive("1'C-3", sublitra)
                         for sublitra in ["a", "b", "c"]]
                 wags = (
-                    [pacril.TwoAxleWagon(p, a, b, 2.3)
+                    [_load.TwoAxleWagon(p, a, b, 2.3)
                         for p in [2.3, 9.0]
                         for a in [1.5, 2.5]
                         for b in [2.5, 4.0]]
-                  + [pacril.BogieWagon(p, a, b, c, 2.3)
+                  + [_load.BogieWagon(p, a, b, c, 2.3)
                         for p in [2.3, 9.0]
                         for a in [2.0, 2.6]
                         for b in [6.5, 11.0]
@@ -333,33 +333,33 @@ class NorwegianRollingStock(RollingStock):
         elif period == 2: # 1900 -- 1930
             if ttl == "ls" or ttl == "p":
                 if ttl == "ls":
-                    locs = [pacril.data.NorwegianLocomotive("1'C1't", "a")]
+                    locs = [NorwegianLocomotive("1'C1't", "a")]
                 elif ttl == "p":
                     locs = (
-                        [pacril.data.NorwegianLocomotive("2'B-2", sublitra)
+                        [NorwegianLocomotive("2'B-2", sublitra)
                          for sublitra in ["a", "b", "c"]]
-                      + [pacril.data.NorwegianLocomotive(litra, sublitra)
+                      + [NorwegianLocomotive(litra, sublitra)
                          for litra in ["2'C-2'2'", "2'D-2'2'"]
                          for sublitra in ["a", "b"]]
                     )
-                wags = [pacril.BogieWagon(p, a, b, c, 5.0)
+                wags = [_load.BogieWagon(p, a, b, c, 5.0)
                         for p in [5.0, 11.0]
                         for a in [2.4, 3.1]
                         for b in [11.6, 14.4]
                         for c in [1.9, 2.3]]
             elif ttl == "f":
                 locs = (
-                    [pacril.data.NorwegianLocomotive("1'C-3", sublitra)
+                    [NorwegianLocomotive("1'C-3", sublitra)
                      for sublitra in ["a", "b", "c"]]
-                  + [pacril.data.NorwegianLocomotive("1'D-2'2'", sublitra)
+                  + [NorwegianLocomotive("1'D-2'2'", sublitra)
                      for sublitra in ["a", "b", "c", "d"]]
                 )
                 wags = (
-                    [pacril.TwoAxleWagon(p, a, b, 3.0)
+                    [_load.TwoAxleWagon(p, a, b, 3.0)
                         for p in [3.0, 12.0]
                         for a in [1.5, 2.5]
                         for b in [2.5, 5.0]]
-                  + [pacril.BogieWagon(p, a, b, c, 3.0)
+                  + [_load.BogieWagon(p, a, b, c, 3.0)
                         for p in [3.0, 12.0]
                         for a in [2.2, 2.7]
                         for b in [6.5, 11.5]
@@ -368,36 +368,36 @@ class NorwegianRollingStock(RollingStock):
         elif period == 3: # 1930 -- 1960
             if ttl == "ls" or ttl == "p":
                 if ttl == "ls":
-                    xp = pacril.get_geometry_bogie_wagon(3.6, 15.0, 2.5)
+                    xp = _load.get_geometry_bogie_wagon(3.6, 15.0, 2.5)
                     p = np.array([13.0]*4)
-                    locs = [pacril.Locomotive(xp, p)]
+                    locs = [_load.Locomotive(xp, p)]
                 elif ttl == "p":
                     locs = (
-                        [pacril.data.NorwegianLocomotive(litra, sublitra)
+                        [NorwegianLocomotive(litra, sublitra)
                          for litra in ["2'C-2'2'", "2'D-2'2'", "B'B'"]
                          for sublitra in ["a", "b"]]
                     )
-                wags = [pacril.BogieWagon(p, a, b, c, 6.0)
+                wags = [_load.BogieWagon(p, a, b, c, 6.0)
                         for p in [6.0, 12.0]
                         for a in [1.9, 4.3]
                         for b in [9.1, 16.0]
                         for c in [2.0, 3.0]]
             elif ttl == "f":
                 locs = (
-                    [pacril.data.NorwegianLocomotive("1'E-2'2'", sublitra)
+                    [NorwegianLocomotive("1'E-2'2'", sublitra)
                      for sublitra in ["a"]]
-                    + [pacril.data.NorwegianLocomotive("1'D-2'2'", sublitra)
+                    + [NorwegianLocomotive("1'D-2'2'", sublitra)
                        for sublitra in ["a", "b", "c", "d"]]
-                    + [pacril.data.NorwegianLocomotive("B'B'", sublitra)
+                    + [NorwegianLocomotive("B'B'", sublitra)
                        for sublitra in ["a", "b"]]
                 )
 
                 wags = (
-                    [pacril.TwoAxleWagon(p, a, b, 3.0)
+                    [_load.TwoAxleWagon(p, a, b, 3.0)
                         for p in [3.0, 15.0]
                         for a in [1.5, 3.0]
                         for b in [3.5, 7.0]]
-                  + [pacril.BogieWagon(p, a, b, c, 3.0)
+                  + [_load.BogieWagon(p, a, b, c, 3.0)
                         for p in [3.0, 15.0]
                         for a in [2.4, 2.7]
                         for b in [8.0, 12.0]
@@ -406,31 +406,31 @@ class NorwegianRollingStock(RollingStock):
         elif period == 4: # 1960 -- 1985
             if ttl == "ls" or ttl == "p":
                 if ttl == "ls":
-                    xp = pacril.get_geometry_bogie_wagon(3.8, 16.0, 2.5)
+                    xp = _load.get_geometry_bogie_wagon(3.8, 16.0, 2.5)
                     p = np.array([16.0]*4)
-                    locs = [pacril.Locomotive(xp, p),]
+                    locs = [_load.Locomotive(xp, p),]
                 elif ttl == "p":
                     locs = (
-                        [pacril.data.NorwegianLocomotive(litra, sublitra)
+                        [NorwegianLocomotive(litra, sublitra)
                          for litra in ["Bo'Bo'", "Co'Co'", "B'B'"]
                          for sublitra in ["a", "b",]]
                     )
-                wags = [pacril.BogieWagon(p, a, b, c, 7.5)
+                wags = [_load.BogieWagon(p, a, b, c, 7.5)
                         for p in [7.5, 13.0]
                         for a in [3.0, 4.2]
                         for b in [16.0, 20.4]
                         for c in [2.2, 2.7]]
             elif ttl == "f":
-                locs = ([pacril.data.NorwegianLocomotive(litra, sublitra)
+                locs = ([NorwegianLocomotive(litra, sublitra)
                          for litra in ["Bo'Bo'", "Co'Co'", "B'B'"]
                          for sublitra in ["a", "b", ]]
                 )
                 wags = (
-                    [pacril.TwoAxleWagon(p, a, b, 5.0)
+                    [_load.TwoAxleWagon(p, a, b, 5.0)
                         for p in [5.0, 18.0]
                         for a in [2.0, 4.1]
                         for b in [5.5, 9.0]]
-                  + [pacril.BogieWagon(p, a, b, c, 5.0)
+                  + [_load.BogieWagon(p, a, b, c, 5.0)
                         for p in [5.0, 18.0]
                         for a in [2.5, 3.2]
                         for b in [9.0, 15.7]
@@ -439,32 +439,32 @@ class NorwegianRollingStock(RollingStock):
         elif period == 5: # 1985 -- 2000
             if ttl == "ls" or ttl == "p":
                 if ttl == "ls":
-                    xp = pacril.get_geometry_bogie_wagon(3.8, 16.0, 2.6)
+                    xp = _load.get_geometry_bogie_wagon(3.8, 16.0, 2.6)
                     p = np.array([18.0]*4)
-                    locs = [pacril.Locomotive(xp, p),]
+                    locs = [_load.Locomotive(xp, p),]
                 elif ttl == "p":
                     locs = (
-                        [pacril.data.NorwegianLocomotive(litra, sublitra)
+                        [NorwegianLocomotive(litra, sublitra)
                          for litra in ["Bo'Bo'", "Co'Co'"]
                          for sublitra in ["a", "b", "c", "d", "e", "f"]]
                     )
-                wags = [pacril.BogieWagon(p, a, b, c, 8.5)
+                wags = [_load.BogieWagon(p, a, b, c, 8.5)
                         for p in [8.5, 14.0]
                         for a in [3.2, 4.3]
                         for b in [16.5, 20.4]
                         for c in [2.5, 2.7]]
             elif ttl == "f":
-                locs = ([pacril.data.NorwegianLocomotive(litra, sublitra)
+                locs = ([NorwegianLocomotive(litra, sublitra)
                          for litra in ["Bo'Bo'", "Co'Co'"]
                          for sublitra in ["a", "b", "c", "d", "e", "f"]]
                 )
 
                 wags = (
-                    [pacril.TwoAxleWagon(p, a, b, 5.6)
+                    [_load.TwoAxleWagon(p, a, b, 5.6)
                         for p in [5.6, 22.5]
                         for a in [2.3, 4.1]
                         for b in [7.5, 11.0]]
-                  + [pacril.BogieWagon(p, a, b, c, 5.6)
+                  + [_load.BogieWagon(p, a, b, c, 5.6)
                         for p in [5.6, 22.5]
                         for a in [2.5]
                         for b in [9.0, 15.7]
@@ -473,43 +473,43 @@ class NorwegianRollingStock(RollingStock):
         elif period == 6: # 2000 --
             if ttl == "ls" or ttl == "p":
                 if ttl == "ls":
-                    xp = pacril.get_geometry_bogie_wagon(3.8, 16.0, 2.6)
+                    xp = _load.get_geometry_bogie_wagon(3.8, 16.0, 2.6)
                     p = np.array([18.0]*4)
-                    locs = [pacril.Locomotive(xp, p),]
+                    locs = [_load.Locomotive(xp, p),]
                 elif ttl == "p":
                     locs = (
-                        [pacril.data.NorwegianLocomotive(litra, sublitra)
+                        [NorwegianLocomotive(litra, sublitra)
                          for litra in ["Bo'Bo'", "Co'Co'"]
                          for sublitra in ["c", "d", "e", "f"]]
                     )
-                wags = ([pacril.BogieWagon(p, a, b, c, 8.5)
+                wags = ([_load.BogieWagon(p, a, b, c, 8.5)
                         for p in [8.5, 14.0]
                         for a in [3.2, 4.3]
                         for b in [16.5, 20.4]
                         for c in [2.5, 2.7]]
-                      + [pacril.JacobsWagon(p, a, b, c, 8.5)
+                      + [_load.JacobsWagon(p, a, b, c, 8.5)
                         for p in [8.5, 14.0]
                         for a in [1.6, 5.6]
                         for b in [15.3, 18.2]
                         for c in [2.5]]
                 )
             elif ttl == "f":
-                locs = ([pacril.data.NorwegianLocomotive(litra, sublitra)
+                locs = ([NorwegianLocomotive(litra, sublitra)
                          for litra in ["Bo'Bo'", "Co'Co'"]
                          for sublitra in ["c", "d", "e", "f"]]
                          )
 
                 wags = (
-                    [pacril.TwoAxleWagon(p, a, b, 5.6)
+                    [_load.TwoAxleWagon(p, a, b, 5.6)
                         for p in [5.6, 22.5]
                         for a in [2.3, 4.1]
                         for b in [7.5, 11.0]]
-                    + [pacril.BogieWagon(p, a, b, c, 5.6)
+                    + [_load.BogieWagon(p, a, b, c, 5.6)
                         for p in [5.6, 22.5]
                         for a in [2.5]
                         for b in [9.0, 15.7]
                         for c in [1.8]]
-                    + [pacril.JacobsWagon(p, a, b, c, 5.6)
+                    + [_load.JacobsWagon(p, a, b, c, 5.6)
                         for p in [5.6, 22.5]
                         for a in [2.5, 2.8]
                         for b in [14.2, 14.9]
@@ -518,4 +518,14 @@ class NorwegianRollingStock(RollingStock):
 
 
 if __name__ == '__main__':
-    pass
+    import matplotlib.pyplot as plt
+
+    rs = NorwegianRollingStock(6, 'f')
+    plt.figure(dpi=144)
+    for n in xrange(3):
+        train = rs.get_train(np.random.randint(10, 50))
+        l = INFLUENCELINES['Hell']['stringer']
+        z = train.apply(l)
+        plt.plot(z, label="Train {0}".format(n+1))
+    plt.legend()
+    plt.show(block=True)
