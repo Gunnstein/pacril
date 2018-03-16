@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import scipy.stats as stats
-import pandas as pd
+from _load import Locomotive as _Locomotive
 
-__all__ = ["LOCOMOTIVES", "INFLUENCELINES"]
 
 LOCOMOTIVES = {
     "1'C1't": {
@@ -248,3 +247,29 @@ INFLUENCELINES = {
     }
 }
 
+
+class NorwegianLocomotive(_Locomotive):
+    """Define a Norwegian locomotive by its litra and sublitra.
+
+    For more information, see
+
+    G. Frøseth, A. Rønnquist. Evolution of load conditions in the Norwegian
+        railway network and imprecision of historic railway loading data.
+        Structure and Infrastructure. 2018
+
+
+    Arguments
+    ---------
+    litra, sublitra: str
+        The litra (e.g "B'B'") and sublitra (e.g "a") for the locomotives
+        defined in the data module
+    """
+    def __init__(self, litra, sublitra):
+        self.litra = litra
+        self.sublitra = sublitra
+        loc = LOCOMOTIVES[litra][sublitra]
+        super(NorwegianLocomotive, self).__init__(loc['xp'], loc['p'])
+
+
+if __name__ == '__main__':
+    pass
