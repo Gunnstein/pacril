@@ -52,11 +52,11 @@ def get_il_simply_supported_beam(L, xi, fx=10.):
     Nl = np.round(xi * x.size).astype(np.int)
     l[:Nl] = (xi-1.)*x[:Nl]/L
     l[Nl:] = (x[Nl:] / L - 1.) * xi
-    return l
+    return -l
 
 
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    plt.plot(get_il_simply_supported_beam(10., 1.0))
+    plt.plot(get_il_simply_supported_beam(10., .5))
     plt.show(block=True)

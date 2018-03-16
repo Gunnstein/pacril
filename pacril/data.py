@@ -288,6 +288,12 @@ class NorwegianRollingStock(RollingStock):
         |   6    | 2000--     |
         =======================
 
+    For more information, see
+
+    G. Frøseth, A. Rønnquist. Evolution of load conditions in the Norwegian
+        railway network and imprecision of historic railway loading data.
+        Structure and Infrastructure. 2018
+
     Arguments
     ---------
     period : int

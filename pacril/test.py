@@ -124,6 +124,45 @@ class TestPacril(unittest.TestCase):
         np.testing.assert_almost_equal(est, tru, 4)
 
 
+class TestLoad(unittest.TestCase):
+    def setUp(self):
+        self.xptrue = np.array([0., 2.2, 5.4, 9.5, 12.7, 14.9])
+        self.ptrue = np.array([18., 18., 18., 18.])
+        self.load = Load(self.xptrue.copy(), self.ptrue.copy())
+        self.nloads = 4
+        self.loadvector = np.array([
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 18., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 18., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 18., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 18., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.
+            ])
+        self.influence_line = scipy.bartlett(5*10)
+        self.response = np.convolve(self.loadvector, self.influence_line,
+                                    'full')
+
+    def test_xp(self):
+        np.testing.assert_allclose(self.load.xp, self.xptrue)
+
+    def test_p(self):
+        np.testing.assert_allclose(self.load.p, self.ptrue)
+
+    def test_nloads(self):
+        np.testing.assert_equal(self.load.nloads, self.nloads)
+
+    def test_loadvector(self):
+        np.testing.assert_allclose(self.load.loadvector, self.loadvector)
+
+    def test_apply(self):
+        np.testing.assert_allclose(self.load.apply(self.influence_line),
+                                   self.response)
+
+
 class TestLocomotive(unittest.TestCase):
     def setUp(self):
         self.xptrue = np.array([0., 2.2, 5.4, 9.5, 12.7, 14.9])

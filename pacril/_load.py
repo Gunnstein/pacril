@@ -315,7 +315,7 @@ def find_daf_EC3(v, L):
 
 class BaseLoad(object):
     """Parent object of load objects, all other loadobjects are children of
-    this class
+    this class. All children should define xp and p upon initialization.
 
     """
     def __init__(self):
@@ -324,11 +324,10 @@ class BaseLoad(object):
     def copy(self):
         return copy.deepcopy(self)
 
-    def _set_loadvector(self):
-        try:
-            self.loadvector = get_loadvector(self.p, self.xp, self.fx)
-        except AttributeError:
-            pass
+    @property
+    def loadvector(self):
+        return get_loadvector(self.p, self.xp, self.fx)
+
 
     def apply(self, influence_line):
         """Apply the load to the influence line to obtain the response
@@ -343,13 +342,28 @@ class BaseLoad(object):
         ndarray
             The response of the signal after applying the load
         """
-        f = self.loadvector
-        return np.convolve(f, influence_line, mode='full')
+        nxp = np.round(self.fx*np.asfarray(self.xp)).astype(np.int)
+        Nl = influence_line.size
+        Nf = nxp.max()+1
+        Nz = Nl+Nf-1
+        z = np.zeros(Nz, dtype=np.float)
+        for ni, pi in zip(nxp[1:-1], self.p):
+            z[ni:ni+Nl] += pi * influence_line
+        return z
 
-    def __setattr__(self, name, value):
-        super(BaseLoad, self).__setattr__(name, value)
-        if (name=="xp") | (name=="p") | (name=="fx"):
-            self._set_loadvector()
+    @property
+    def nloads(self):
+        return len(self.xp)-2
+
+    def __getattribute__(self, name):
+        value = super(BaseLoad, self).__getattribute__(name)
+        if (name == "p"):
+            if isinstance(value, float) or isinstance(value, np.float):
+                return np.array([value] * self.nloads)
+            else:
+                return np.array(value)
+        else:
+            return value
 
 
 class Load(BaseLoad):
@@ -384,39 +398,31 @@ class Load(BaseLoad):
         self.xp = xp
         self.p = p
 
-    @property
-    def nloads(self):
-        return len(self.xp)-2
-
 
 class BaseVehicle(BaseLoad):
     """Parent object of vehicles, extends the definition of load to contain
     a vehicle properties and methods such as definition of axles and goods.
-
+    Children must define xp, p and pempty.
     """
     @property
     def naxles(self):
         return len(self.xp)-2
 
-    def _set_goods_transported(self):
-        try:
-            self.goods_transported = (self.p - self.pempty).sum()
-        except AttributeError:
-            pass
-
-    def _get_axleloadvector(self, p):
-        if isinstance(p, float):
-            return np.array([p] * self.naxles)
+    def __getattribute__(self, name):
+        value = super(BaseVehicle, self).__getattribute__(name)
+        if (name == "pempty"):
+            if isinstance(value, float) or isinstance(value, np.float):
+                return np.array([value] * self.nloads)
+            else:
+                return np.array(value)
         else:
-            return np.array(p)
+            return value
 
-    def __setattr__(self, name, value):
-        if (name == 'p') | (name == 'pempty'):
-            value = self._get_axleloadvector(value)
-            super(BaseVehicle, self).__setattr__(name, value)
-            self._set_goods_transported()
-        else:
-            super(BaseVehicle, self).__setattr__(name, value)
+    @property
+    def goods_transported(self):
+        p = self.p
+        pempty = self.pempty
+        return (p - pempty).sum()
 
 
 class Locomotive(BaseVehicle):
@@ -604,11 +610,6 @@ class Train(BaseVehicle):
                 pempty = np.concatenate((pempty, wagon.pempty))
         pitch = np.concatenate((pitch, np.array([x0])))
         xp = np.insert(np.cumsum(pitch), 0, 0.)
-        for d in ["xp", "p", "pempty"]:
-            try:
-                del self.__dict__[d]
-            except KeyError:
-                pass
         self.xp, self.p, self.pempty = xp, p, pempty
 
     @property
@@ -770,10 +771,14 @@ class RollingStock(object):
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
+    import _influence_line
     xploc = np.array([0., 2.2, 5.4, 9.5, 12.7, 14.9])
     ploc = np.array([18., 18., 18., 18.])
-    locs = [Locomotive(xploc, ploc)]
-    wags = [TwoAxleWagon(4., 1., 2., 2.)]
-    rs = RollingStock(locs, wags)
-    plt.plot(rs.get_train(4).loadvector)
+    loc = Locomotive(xploc, ploc)
+
+    l = scipy.bartlett(5*10 + 1)
+
+    plt.plot(loc.apply(l), label='apply')
+    plt.plot(np.convolve(loc.loadvector, l), label='loadvector')
+    plt.legend()
     plt.show(block=True)
