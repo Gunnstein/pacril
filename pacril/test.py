@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import scipy
+import copy
 from __init__ import *
 import unittest
+
 
 class TestPacril(unittest.TestCase):
     def test_get_coordinate_vector(self):
@@ -120,6 +122,150 @@ class TestPacril(unittest.TestCase):
         tru = np.array([1.00831790, 1.02784818, 1.0943087, 1.11742934,
                         1.15544947, 1.19047617,1.22875845])
         np.testing.assert_almost_equal(est, tru, 4)
+
+
+class TestLocomotive(unittest.TestCase):
+    def setUp(self):
+        self.xptrue = np.array([0., 2.2, 5.4, 9.5, 12.7, 14.9])
+        self.ptrue = np.array([18., 18., 18., 18.])
+        self.load = Locomotive(self.xptrue.copy(), self.ptrue.copy())
+
+        self.naxles = 4
+        self.goods_transported = 0.
+        self.loadvector = np.array([
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 18., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 18., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 18., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 18., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.
+            ])
+
+    def test_xp(self):
+        np.testing.assert_allclose(self.load.xp, self.xptrue)
+
+    def test_p(self):
+        np.testing.assert_allclose(self.load.p, self.ptrue)
+
+    def test_naxles(self):
+        np.testing.assert_equal(self.load.naxles, self.naxles)
+
+    def test_goods_transported(self):
+        self.assertEqual(self.load.goods_transported, self.goods_transported)
+
+    def test_loadvector(self):
+        np.testing.assert_allclose(self.load.loadvector, self.loadvector)
+        fx = self.load.fx
+        self.load.fx = 100.
+        self.load.fx = fx
+        np.testing.assert_allclose(self.load.loadvector, self.loadvector)
+
+
+class TestTwoAxleWagon(TestLocomotive):
+    def setUp(self):
+        self.load = TwoAxleWagon(np.array([13., 21.]), 4., 9.,
+                                 np.array([1., 3.]))
+        self.xptrue = np.cumsum([0., 4., 9., 4.])
+        self.ptrue = np.array([13., 21.])
+        self.naxles = 2
+        self.goods_transported = 13.+21.-1.-3.
+        self.loadvector = np.array([
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 13., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 21., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0.,
+            ])
+
+
+class TestBogieWagon(TestLocomotive):
+    def setUp(self):
+        self.load = BogieWagon(5., 1., 2., 1., 4.)
+        self.xptrue = np.array([0., 0.5, 1.5, 2.5, 3.5, 4.])
+        self.ptrue = np.array([5., 5., 5., 5.])
+        self.naxles = 4
+        self.goods_transported = 4. * (5.-4.)
+        self.loadvector = np.array([
+            0.,  0.,  0.,  0.,  0.,  5.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,
+            0.,  0.,  5.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  5.,
+            0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  5.,  0.,  0.,  0.,
+            0.,  0.])
+
+
+class TestJacobsWagon(TestLocomotive):
+    def setUp(self):
+        p = np.array([9., 9., 13., 14., 10., 11.])
+        self.load = JacobsWagon(p, 1., 2., 1., 7.)
+        self.xptrue = np.array([0., 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.])
+        self.ptrue = p
+        self.naxles = 6
+        self.goods_transported = np.sum(p) - 6. * 7
+        self.loadvector = np.array([
+            0.0, 0.0, 0.0, 0.0, 0.0, 9.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 9.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 13.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 14.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 11.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+
+
+class TestTrain(TestLocomotive):
+    def setUp(self):
+        loc = Locomotive(np.array([0., 2., 4., 6.]), np.array([1., 1.]))
+        wagons = [TwoAxleWagon(2., 2., 4., 1.)]
+        self.load = Train(loc, wagons)
+        self.xptrue = np.array([0., 2., 4., 8., 12., 14.])
+        self.ptrue = np.array([1., 1., 2., 2.])
+        self.naxles = 4
+        self.goods_transported = 2.*(2.-1.)
+        self.loadvector = np.array([
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 2., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 2., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0.])
+
+    def test_remove_and_insert_wagon(self):
+        loc = self.load.locomotive.copy()
+        wagons = copy.deepcopy(self.load.wagons)
+        self.load.remove_wagon(0)
+        np.testing.assert_raises(
+            AssertionError, np.testing.assert_array_equal,
+            self.load.loadvector, self.loadvector)
+        self.load.insert_wagon(0, wagons[0])
+        np.testing.assert_array_equal(self.loadvector, self.loadvector)
+
+
+class TestRollingStock(TestLocomotive):
+    def setUp(self):
+        xploc = np.array([0., 2.2, 5.4, 9.5, 12.7, 14.9])
+        ploc = np.array([18., 18., 18., 18.])
+        locs = [Locomotive(xploc, ploc)]
+        wags = [TwoAxleWagon(4., 1., 2., 2.)]
+        self.rs = RollingStock(locs, wags)
+        self.load = self.rs.get_train(15)
+
+        self.traintrue = Train(locs[0], wags*15)
+        self.xptrue = self.traintrue.xp
+        self.ptrue = self.traintrue.p
+        self.naxles = self.traintrue.naxles
+        self.goods_transported = self.traintrue.goods_transported
+        self.loadvector = self.traintrue.loadvector
+        self.nwagontrue = self.traintrue.nwagons
 
 
 if __name__ == '__main__':

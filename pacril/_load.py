@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import scipy
+import copy
 
 
 __all__ = ['get_loadvector', 'join_loads', 'find_daf_EC3',
            'get_geometry_twoaxle_wagon', 'get_loadvector_twoaxle_wagon',
            'get_geometry_bogie_wagon', 'get_loadvector_bogie_wagon',
-           'get_geometry_jacobs_wagon', 'get_loadvector_jacobs_wagon', ]
+           'get_geometry_jacobs_wagon', 'get_loadvector_jacobs_wagon',
+           'Load', 'Locomotive', 'TwoAxleWagon', 'BogieWagon',
+           'JacobsWagon', 'Train', 'RollingStock', ]
 
 
 def get_loadvector(p, xp, fx=10.):
@@ -310,3 +313,467 @@ def find_daf_EC3(v, L):
     return 1 + .5*(phi1+.5*phi11)
 
 
+class BaseLoad(object):
+    """Parent object of load objects, all other loadobjects are children of
+    this class
+
+    """
+    def __init__(self):
+        self.fx = 10.
+
+    def copy(self):
+        return copy.deepcopy(self)
+
+    def _set_loadvector(self):
+        try:
+            self.loadvector = get_loadvector(self.p, self.xp, self.fx)
+        except AttributeError:
+            pass
+
+    def apply(self, influence_line):
+        """Apply the load to the influence line to obtain the response
+
+        Arguments
+        ---------
+        influence_line : ndarray
+            The influence line to apply the load to.
+
+        Returns
+        -------
+        ndarray
+            The response of the signal after applying the load
+        """
+        f = self.loadvector
+        return np.convolve(f, l, mode='full')
+
+    def __setattr__(self, name, value):
+        super(BaseLoad, self).__setattr__(name, value)
+        if (name=="xp") | (name=="p") | (name=="fx"):
+            self._set_loadvector()
+
+
+class Load(BaseLoad):
+    """Define a generic load object by loadmagnitude p and geometry vector xp.
+
+    The load is defined by magnitudes p and geometry xp, see figure below.
+
+        Loads:          p1  p2      p3  p4
+                         |  |        |  |
+                         |  |        |  |
+                         V  V        V  V
+        Geometry:   |----|--|--------|--|----|----->
+                    x0  x1  x2       x3 x4   x5    xp
+                    ^                        ^
+                    |  <=== direction <===   |
+              start of load             end of load
+
+    Arguments
+    ---------
+    p : float or ndarray
+        Defines the load magnitude, if p is a float it assumes equal load at
+        all load positions, if p is an ndarray it defines each load magnitude
+        individually.
+
+    xp : ndarray
+        Defines the geometry of the load, i.e the start, end and load
+        positions. The array also defines the number of loads,
+        i.e (n_loads = xp.size-2).
+    """
+    def __init__(self, xp, p):
+        super(Load, self).__init__()
+        self.xp = xp
+        self.p = p
+
+    @property
+    def nloads(self):
+        return len(self.xp)-2
+
+
+class BaseVehicle(BaseLoad):
+    """Parent object of vehicles, extends the definition of load to contain
+    a vehicle properties and methods such as definition of axles and goods.
+
+    """
+    @property
+    def naxles(self):
+        return len(self.xp)-2
+
+    def _set_goods_transported(self):
+        try:
+            self.goods_transported = (self.p - self.pempty).sum()
+        except AttributeError:
+            pass
+
+    def _get_axleloadvector(self, p):
+        if isinstance(p, float):
+            return np.array([p] * self.naxles)
+        else:
+            return np.array(p)
+
+    def __setattr__(self, name, value):
+        if (name == 'p') | (name == 'pempty'):
+            value = self._get_axleloadvector(value)
+            super(BaseVehicle, self).__setattr__(name, value)
+            self._set_goods_transported()
+        else:
+            super(BaseVehicle, self).__setattr__(name, value)
+
+
+class Locomotive(BaseVehicle):
+    """Define a generic locomotive, see also NorwegianLocomotive.
+
+    The locmomotive is defined by magnitudes p and geometry xp, see figure
+    below.
+
+        Loads:          p1  p2      p3  p4
+                         |  |        |  |
+                         |  |        |  |
+                         V  V        V  V
+        Geometry:   |----|--|--------|--|----|----->
+                    x0  x1  x2       x3 x4   x5    xp
+                    ^                        ^
+                    |  <=== direction <===   |
+              start of load             end of load
+
+    Arguments
+    ---------
+    p : float or ndarray
+        Defines the load magnitude, if p is a float it assumes equal load at
+        all load positions, if p is an ndarray it defines each load magnitude
+        individually.
+
+    xp : ndarray
+        Defines the geometry of the load, i.e the start, end and load
+        positions. The array also defines the number of loads,
+        i.e (n_loads = xp.size-2).
+    """
+    def __init__(self, xp, p):
+        super(Locomotive, self).__init__()
+        self.xp = xp
+        self.p = p
+        self.pempty = p
+
+
+class TwoAxleWagon(BaseVehicle):
+    """Define a twoaxle wagon
+
+     The two axle wagon is defined by axleloads p and geometry parameter a and
+     b, see figure below.
+
+        Type:          Twoaxle wagon
+                       +------------+
+        Axleload:      | p1      p2 |
+                    (--+------------+--)
+                         O        O
+        Geometry:   |----|--------|----|
+                      a       b     a
+
+    Arguments
+    ---------
+    p, pempty : float or ndarray
+        Defines the axle loads, if float it assumes equal axle load on each
+        axle, if ndarray it defines each axle load individually.
+
+    a,b : float
+        Defines the geometry of the vehicle, i.e the start, end and axle
+        positions.
+    """
+    def __init__(self, p, a, b, pempty):
+        super(TwoAxleWagon, self).__init__()
+        self.xp = get_geometry_twoaxle_wagon(a, b)
+        self.p = p
+        self.pempty = pempty
+
+
+class BogieWagon(BaseVehicle):
+    """Define a bogie wagon
+
+    The bogie wagon is defined by axleloads p and geometry parameters a, b and
+    c, see figure below.
+
+        Type:               Bogie wagon
+                       +-------------------+
+        Axleload:      | p1 p2       p3 p4 |
+                    (--+-------------------+--)
+                         O   O       O   O
+                    |------|-----------|------|
+        Geometry:      a         b         a
+                         |---|       |---|
+                           c           c
+
+    Arguments
+    ---------
+    p, pempty : float or ndarray
+        Defines the axle loads, if float it assumes equal axle load on each
+        axle, if ndarray it defines each axle load individually.
+
+    a,b,c : float
+        Defines the geometry of the vehicle, i.e the start, end and axle
+        positions.
+    """
+    def __init__(self, p, a, b, c, pempty):
+        super(BogieWagon, self).__init__()
+        self.xp = get_geometry_bogie_wagon(a, b, c)
+        self.p = p
+        self.pempty = pempty
+
+
+class JacobsWagon(BaseVehicle):
+    """Define a jacobs wagon
+
+    The jacobsbogie wagon is defined by axleloads p and geometry parameters a,
+    b and c, see figure below.
+
+        Type:                     Jacobsbogie wagon
+                       +----------------------------------+
+        Axleload:      | p1 p2        p3  p4        p5 p6 |
+                    (--+----------------)(----------------+--)
+                         O   O        O    O        O   O
+                    |------|------------|-------------|------|
+        Geometry:      a         b             b          a
+                         |---|        |----|        |---|
+                           c            c             c
+
+    Arguments
+    ---------
+    p, pempty : float or ndarray
+        Defines the axle loads, if float it assumes equal axle load on each
+        axle, if ndarray it defines each axle load individually.
+
+    a,b,c : float
+        Defines the geometry of the vehicle, i.e the start, end and axle
+        positions.
+    """
+    def __init__(self, p, a, b, c, pempty):
+        super(JacobsWagon, self).__init__()
+        self.xp = get_geometry_jacobs_wagon(a, b, c)
+        self.p = p
+        self.pempty = pempty
+
+
+class Train(BaseVehicle):
+    """Defines a train
+
+    A train consists of a locomotive and wagons.
+
+    Arguments
+    ---------
+    locomotive : Locomotive
+        The locomotive of the train
+
+    wagons : list
+        A list whos elements are Wagon instances.
+
+    Example
+    -------
+        >>> import numpy as np
+        >>> import matplotlib.pyplot as plt
+        >>> import pacril
+        >>>
+        >>> loc = pacril.NorwegianLocomotive("Bo'Bo'", "a")
+        >>> wagons = [pacril.TwoAxleWagon(p, 3., 7., 5.)
+                      for p in np.arange(10., 21., 1.)]
+        >>> train = pacril.Train(loc, wagons)
+        >>>
+        >>> l = pacril.get_il_simply_supported_beam(5., .5)
+        >>> z = train.apply(l)
+        >>> xz = pacril.get_coordinate_vector(z)
+        >>>
+        >>> plt.plot(xz, z)
+        >>> plt.show()
+    """
+    def __init__(self, locomotive, wagons):
+        super(Train, self).__init__()
+        self.locomotive = locomotive
+        self.wagons = wagons
+        self._set_xp_and_p()
+
+    def _set_xp_and_p(self):
+        dxp = np.diff(self.locomotive.xp)
+        pitch = dxp[:-1]
+        x0 = dxp[-1]
+        p = self.locomotive.p
+        pempty = self.locomotive.pempty
+        if self.nwagons > 0:
+            for wagon in self.wagons:
+                dxp = np.diff(wagon.xp)
+                dxp[0] = dxp[0] + x0
+                pitch = np.concatenate((pitch, dxp[:-1]))
+                x0 = dxp[-1]
+                p = np.concatenate((p, wagon.p))
+                pempty = np.concatenate((pempty, wagon.pempty))
+        pitch = np.concatenate((pitch, np.array([x0])))
+        xp = np.insert(np.cumsum(pitch), 0, 0.)
+        for d in ["xp", "p", "pempty"]:
+            try:
+                del self.__dict__[d]
+            except KeyError:
+                pass
+        self.xp, self.p, self.pempty = xp, p, pempty
+
+    @property
+    def nwagons(self):
+        return len(self.wagons)
+
+    def swap_locomotive(self, locomotive):
+        """Swap out the locomotive
+
+        Arguments
+        ---------
+        locomotive : Locomotive
+            The locmotive to insert.
+        """
+        self.locomotive = locomotive
+        self._set_xp_and_p()
+
+    def swap_wagon(self, ix, wagon):
+        """Swap out wagon with new wagon
+
+        Arguments
+        ---------
+        ix : int
+            The index of the wagon to swap out
+
+        wagon : Wagon
+            The wagon to swap in.
+        """
+        self.wagons[ix] = wagon
+        self._set_xp_and_p()
+
+    def insert_wagon(self, ix, wagon):
+        """Insert a new wagon before ix
+
+        Arguments
+        ---------
+        ix : int
+            The index to insert the wagon infront of.
+
+        wagon : Wagon
+            The wagon to insert.
+        """
+        self.wagons.insert(ix, wagon)
+        self._set_xp_and_p()
+
+    def remove_wagon(self, ix):
+        """Remove wagon from train
+
+        Arguments
+        ---------
+        ix : int
+            The index of the wagon to remove
+        """
+        self.wagons.pop(ix)
+        self._set_xp_and_p()
+
+
+class RollingStock(object):
+    """Rolling stock contains the possible sets of locomotives and wagons.
+
+    A rolling stock object contains locomotives and wagons and methods to
+    generate and assemble trains.
+
+    TODO: Create a unit test for this object.
+
+    Arguments
+    ---------
+    locomotives, wagons : list
+        A list of locomotives and wagons that are present in the rolling stock.
+    loc_pmf, wagon_pmf : ndarray
+        The probability mass funcitons (probabilities) of selecting each of
+        the locomotives. Same size as locomotives/wagons.
+    """
+    def __init__(self, locomotives, wagons, loc_pmf=None, wagon_pmf=None):
+        self.locomotives = locomotives
+        self.wagons = wagons
+        Nloc, Nwag = len(locomotives), len(wagons)
+        self.locomotive_pmf = loc_pmf
+        self.wagon_pmf = wagon_pmf
+
+    @property
+    def nlocomotives(self):
+        return len(self.locomotives)
+
+    @property
+    def nwagons(self):
+        return len(self.wagons)
+
+    def choose_locomotive(self):
+        if self.nlocomotives == 0:
+            return []
+        else:
+            return np.random.choice(self.locomotives, p=self.locomotive_pmf)
+
+    def choose_wagons(self, num_wagons):
+        if self.nwagons == 0:
+            return []
+        else:
+            return list(np.random.choice(
+                self.wagons, size=num_wagons, p=self.wagon_pmf))
+
+    def get_train(self, num_wagons):
+        """Returns a train instance assembled randomly from the rolling stock.
+
+        Arguments
+        ---------
+        num_wagons : int
+            The number of wagons to assemble the train with.
+        """
+        loc = self.choose_locomotive()
+        wagons = self.choose_wagons(num_wagons)
+        return Train(loc, wagons)
+
+    def get_neighbor_train(self, train, fixed_length_trains=True, Nwag_min=10,
+                           Nwag_max=50):
+        """Returns the neighbor train.
+
+        The neighbor train is defined as the train that has one by adding,
+        removing wagons or swapping the locomotive or a wagon.
+
+        This function is very useful in simulated annealing where the
+        neighboring solution can be determined by swapping out one of the
+        elements.
+
+        Arguments
+        ---------
+        train : Train
+            The train instance to find the neighbor for.
+        fixed_length_trains : bool
+            Wether or not the new train should have the same number of wagons
+            as the previous train or not.
+        """
+        Nwag = train.nwagons
+        train_new = train.copy()
+
+        if fixed_length_trains:
+            n = np.random.randint(-1, Nwag)
+        else:
+            if Nwag_min < Nwag < Nwag_max:
+                n = np.random.randint(-3, Nwag)
+            elif Nwag == Nwag_min:
+                n = np.random.randint(-2, Nwag)
+            elif Nwag == Nwag_max:
+                n = np.random.randint(-2, Nwag)
+                if n == -2:
+                    n = -3
+        if n == -3:
+            n = np.random.randint(0, Nwag)
+            train_new.remove_wagon(n)
+        if n == -2:
+            n = np.random.randint(0, Nwag)
+            train_new.insert(n, self.choose_wagons(1)[0])
+        elif n == -1:
+            train_new.swap_locomotive(self.choose_locomotive())
+        else:
+            train_new.swap_wagon(n, self.choose_wagons(1)[0])
+        return train_new
+
+
+if __name__ == '__main__':
+    import matplotlib.pyplot as plt
+    xploc = np.array([0., 2.2, 5.4, 9.5, 12.7, 14.9])
+    ploc = np.array([18., 18., 18., 18.])
+    locs = [Locomotive(xploc, ploc)]
+    wags = [TwoAxleWagon(4., 1., 2., 2.)]
+    rs = RollingStock(locs, wags)
+    plt.plot(rs.get_train(4).loadvector)
+    plt.show(block=True)

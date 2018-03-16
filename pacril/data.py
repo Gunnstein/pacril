@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import scipy.stats as stats
-import pandas as pd
-from _loadobjects import Locomotive as _Locomotive
-from _loadobjects import TestLocomotive as _TestLocomotive
+from _load import Locomotive as _Locomotive
 
-
-__all__ = ["LOCOMOTIVES", "INFLUENCELINES", "NorwegianLocomotive"]
 
 LOCOMOTIVES = {
     "1'C1't": {
@@ -275,26 +271,5 @@ class NorwegianLocomotive(_Locomotive):
         super(NorwegianLocomotive, self).__init__(loc['xp'], loc['p'])
 
 
-class TestNorwegianLocomotive(_TestLocomotive):
-    def setUp(self):
-        self.load = NorwegianLocomotive("Bo'Bo'", "b")
-        self.xptrue = np.array([0., 2.2, 5.4, 9.5, 12.7, 14.9])
-        self.ptrue = np.array([18., 18., 18., 18.])
-        self.naxles = 4
-        self.goods_transported = 0.
-        self.loadvector = np.array([
-            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-            0., 0., 0., 0., 0., 0., 0., 18., 0., 0., 0., 0., 0., 0., 0.,
-            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-            0., 0., 0., 0., 0., 0., 0., 0., 0., 18., 0., 0., 0., 0., 0.,
-            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-            0., 0., 0., 0., 0., 18., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
-            0., 0., 0., 0., 0., 0., 0., 18., 0., 0., 0., 0., 0., 0., 0.,
-            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.
-            ])
-
 if __name__ == '__main__':
-    import unittest
-    unittest.main()
+    pass
