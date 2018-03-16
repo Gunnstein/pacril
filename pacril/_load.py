@@ -344,7 +344,7 @@ class BaseLoad(object):
             The response of the signal after applying the load
         """
         f = self.loadvector
-        return np.convolve(f, l, mode='full')
+        return np.convolve(f, influence_line, mode='full')
 
     def __setattr__(self, name, value):
         super(BaseLoad, self).__setattr__(name, value)
