@@ -738,7 +738,7 @@ class RollingStock(object):
         return Train(loc, wagons)
 
     def get_neighbor_train(self, train, fixed_length_trains=True, Nwag_min=10,
-                           Nwag_max=50):
+                           Nwag_max=50, make_copy=True):
         """Returns the neighbor train.
 
         The neighbor train is defined as the train that has one by adding,
@@ -755,10 +755,21 @@ class RollingStock(object):
         fixed_length_trains : bool
             Wether or not the new train should have the same number of wagons
             as the previous train or not.
+        Nwag_min,Nwag_max : int
+            The minimum and maximum number of wagons that the train can consist
+            of.
+        make_copy : bool
+            Return a copy of `train` leave `train` in the same state as
+            it was when the method was called. Copying instances is associated
+            with high computational cost and significant performance gains can
+            be made if the method is allowed to change `train` inplace without
+            making a new compy.
         """
         Nwag = train.nwagons
-        train_new = train.copy()
-
+        if make_copy:
+            train_new = train.copy()
+        else:
+            train_new = train
         if fixed_length_trains:
             n = np.random.randint(-1, Nwag)
         else:

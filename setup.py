@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 setup(name='pacril',
-      version='1.1.0',
+      version='1.1.1',
       url='https://github.com/Gunnstein/pacril',
       license='MIT',
       description='Package for generating responses from influence lines and loads. Inverse methods are also included',
