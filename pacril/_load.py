@@ -759,32 +759,46 @@ class RollingStock(object):
         if n == -3:
             n = np.random.randint(0, Nwag)
             train_new.remove_wagon(n)
-        if n == -2:
+        elif n == -2:
             n = np.random.randint(0, Nwag)
             train_new.insert_wagon(n, self.choose_wagons(1)[0])
         elif n == -1:
             train_new.swap_locomotive(self.choose_locomotive())
         else:
-            train_new.swap_wagon(n, self.choose_wagons(1)[0])
+            try:
+                train_new.swap_wagon(n, self.choose_wagons(1)[0])
+            except IndexError:
+                print n, train_new.nwagons
         return train_new
 
 
 if __name__ == '__main__':
+
+
     import matplotlib.pyplot as plt
     import _influence_line
     xploc = np.array([0., 2.2, 5.4, 9.5, 12.7, 14.9])
     ploc = np.array([18., 18., 18., 18.])
     loc = Locomotive(xploc, ploc)
-    l = scipy.bartlett(5*10 + 1)
+
     wagons = [TwoAxleWagon(p, 3., 4., 3.) for p in [12., 4.]]
     rs = RollingStock([loc], wagons)
 
-    train = rs.get_train(3)
-    N0 = train.nwagons
-    train.insert_wagon(0, wagons[0])
-    N1 = train.nwagons
-    print N0, N1
-    plt.plot(loc.apply(l), label='apply')
-    plt.plot(np.convolve(loc.loadvector, l), label='loadvector')
-    plt.legend()
-    plt.show(block=True)
+    x0 = rs.get_train(30)
+
+    for n in xrange(10000):
+            x0 = rs.get_neighbor_train(x0, fixed_length_trains=False)
+
+
+
+
+    # l = scipy.bartlett(5*10 + 1)
+    # train = rs.get_train(3)
+    # N0 = train.nwagons
+    # train.insert_wagon(0, wagons[0])
+    # N1 = train.nwagons
+    # print N0, N1
+    # plt.plot(loc.apply(l), label='apply')
+    # plt.plot(np.convolve(loc.loadvector, l), label='loadvector')
+    # plt.legend()
+    # plt.show(block=True)
