@@ -592,25 +592,43 @@ class Train(BaseVehicle):
         super(Train, self).__init__()
         self.locomotive = locomotive
         self.wagons = wagons
-        self._set_xp_and_p()
 
-    def _set_xp_and_p(self):
-        dxp = np.diff(self.locomotive.xp)
-        pitch = dxp[:-1]
-        x0 = dxp[-1]
-        p = self.locomotive.p
-        pempty = self.locomotive.pempty
-        if self.nwagons > 0:
-            for wagon in self.wagons:
-                dxp = np.diff(wagon.xp)
-                dxp[0] = dxp[0] + x0
-                pitch = np.concatenate((pitch, dxp[:-1]))
-                x0 = dxp[-1]
-                p = np.concatenate((p, wagon.p))
-                pempty = np.concatenate((pempty, wagon.pempty))
-        pitch = np.concatenate((pitch, np.array([x0])))
-        xp = np.insert(np.cumsum(pitch), 0, 0.)
-        self.xp, self.p, self.pempty = xp, p, pempty
+    @property
+    def xp(self):
+        loc = self.locomotive
+        wagons = self.wagons
+        xp0 = [loc.xp] + [wag.xp for wag in wagons]
+        xpstart = np.cumsum([0.] + [x[-1] for x in xp0])
+        xp = np.array(
+            [0.] + [xpi0 + xpij for xpi0, xpi in zip(xpstart[:-1], xp0)
+                    for xpij in xpi[1:-1]] + [xpstart[-1]]
+            )
+        return xp
+
+    @property
+    def xp2(self):
+        loc = self.locomotive
+        wagons = self.wagons
+        xp0 = [loc.xp] + [wag.xp for wag in wagons]
+        xpstart = np.cumsum([0.] + [x[-1] for x in xp0])
+        xp = np.concatenate([x[1:-1] for x in (xp0 + xpstart[:-1])])
+        xp = np.insert(xp, (0, xp.size), [0., xpstart[-1]])
+        return xp
+
+
+    @property
+    def p(self):
+        loc = self.locomotive
+        wagons = self.wagons
+        p = np.concatenate([loc.p] + [wag.p for wag in wagons])
+        return p
+
+    @property
+    def pempty(self):
+        loc = self.locomotive
+        wagons = self.wagons
+        p = np.concatenate([loc.pempty] + [wag.pempty for wag in wagons])
+        return p
 
     @property
     def nwagons(self):
@@ -625,7 +643,6 @@ class Train(BaseVehicle):
             The locmotive to insert.
         """
         self.locomotive = locomotive
-        self._set_xp_and_p()
 
     def swap_wagon(self, ix, wagon):
         """Swap out wagon with new wagon
@@ -639,7 +656,6 @@ class Train(BaseVehicle):
             The wagon to swap in.
         """
         self.wagons[ix] = wagon
-        self._set_xp_and_p()
 
     def insert_wagon(self, ix, wagon):
         """Insert a new wagon before ix
@@ -653,7 +669,6 @@ class Train(BaseVehicle):
             The wagon to insert.
         """
         self.wagons.insert(ix, wagon)
-        self._set_xp_and_p()
 
     def remove_wagon(self, ix):
         """Remove wagon from train
@@ -664,7 +679,6 @@ class Train(BaseVehicle):
             The index of the wagon to remove
         """
         self.wagons.pop(ix)
-        self._set_xp_and_p()
 
 
 class RollingStock(object):
@@ -774,6 +788,7 @@ if __name__ == '__main__':
 
     import matplotlib.pyplot as plt
     import _influence_line
+    import timeit
     xploc = np.array([0., 2.2, 5.4, 9.5, 12.7, 14.9])
     ploc = np.array([18., 18., 18., 18.])
     loc = Locomotive(xploc, ploc)
@@ -781,21 +796,12 @@ if __name__ == '__main__':
     wagons = [TwoAxleWagon(p, 3., 4., 3.) for p in [12., 4.]]
     rs = RollingStock([loc], wagons)
 
-    x0 = rs.get_train(30)
+    x0 = rs.get_train(5)
+    l = _influence_line.get_il_simply_supported_beam(4., .2)
 
-    for n in xrange(10000):
-            x0 = rs.get_neighbor_train(x0, fixed_length_trains=False)
+    plt.plot(x0.apply(l))
+    plt.show(block=True)
 
 
 
 
-    # l = scipy.bartlett(5*10 + 1)
-    # train = rs.get_train(3)
-    # N0 = train.nwagons
-    # train.insert_wagon(0, wagons[0])
-    # N1 = train.nwagons
-    # print N0, N1
-    # plt.plot(loc.apply(l), label='apply')
-    # plt.plot(np.convolve(loc.loadvector, l), label='loadvector')
-    # plt.legend()
-    # plt.show(block=True)
