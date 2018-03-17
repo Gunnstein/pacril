@@ -606,17 +606,6 @@ class Train(BaseVehicle):
         return xp
 
     @property
-    def xp2(self):
-        loc = self.locomotive
-        wagons = self.wagons
-        xp0 = [loc.xp] + [wag.xp for wag in wagons]
-        xpstart = np.cumsum([0.] + [x[-1] for x in xp0])
-        xp = np.concatenate([x[1:-1] for x in (xp0 + xpstart[:-1])])
-        xp = np.insert(xp, (0, xp.size), [0., xpstart[-1]])
-        return xp
-
-
-    @property
     def p(self):
         loc = self.locomotive
         wagons = self.wagons
@@ -687,7 +676,6 @@ class RollingStock(object):
     A rolling stock object contains locomotives and wagons and methods to
     generate and assemble trains.
 
-    TODO: Create a unit test for this object.
 
     Arguments
     ---------
@@ -738,7 +726,7 @@ class RollingStock(object):
         return Train(loc, wagons)
 
     def get_neighbor_train(self, train, fixed_length_trains=True, Nwag_min=10,
-                           Nwag_max=50, make_copy=True):
+                           Nwag_max=50):
         """Returns the neighbor train.
 
         The neighbor train is defined as the train that has one by adding,
@@ -758,18 +746,9 @@ class RollingStock(object):
         Nwag_min,Nwag_max : int
             The minimum and maximum number of wagons that the train can consist
             of.
-        make_copy : bool
-            Return a copy of `train` leave `train` in the same state as
-            it was when the method was called. Copying instances is associated
-            with high computational cost and significant performance gains can
-            be made if the method is allowed to change `train` inplace without
-            making a new compy.
         """
         Nwag = train.nwagons
-        if make_copy:
-            train_new = train.copy()
-        else:
-            train_new = train
+        train_new = Train(train.locomotive, list(train.wagons))
         if fixed_length_trains:
             n = np.random.randint(-1, Nwag)
         else:
@@ -807,9 +786,12 @@ if __name__ == '__main__':
     wagons = [TwoAxleWagon(p, 3., 4., 3.) for p in [12., 4.]]
     rs = RollingStock([loc], wagons)
 
-    x0 = rs.get_train(5)
+    x0 = rs.get_train(11)
     l = _influence_line.get_il_simply_supported_beam(4., .2)
+    plt.plot(x0.apply(l))
 
+    x1 = rs.get_neighbor_train(x0)
+    plt.plot(x1.apply(l))
     plt.plot(x0.apply(l))
     plt.show(block=True)
 
