@@ -306,6 +306,11 @@ class TestRollingStock(TestLocomotive):
         self.loadvector = self.traintrue.loadvector
         self.nwagontrue = self.traintrue.nwagons
 
+    def test_get_neighbor_train(self):
+        x0 = self.rs.get_train(25)
+        for n in xrange(10000):
+            self.rs.get_neighbor_train(x0)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -765,10 +765,7 @@ class RollingStock(object):
         elif n == -1:
             train_new.swap_locomotive(self.choose_locomotive())
         else:
-            try:
                 train_new.swap_wagon(n, self.choose_wagons(1)[0])
-            except IndexError:
-                print n, train_new.nwagons
         return train_new
 
 
