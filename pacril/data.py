@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import division, print_function, absolute_import
 import numpy as np
 import scipy.stats as stats
-import _load
+import pacril._load as _load
 
 
 LOCOMOTIVES = {

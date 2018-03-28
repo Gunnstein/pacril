@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import division, print_function, absolute_import
 import numpy as np
 
 __all__ = ['get_il_simply_supported_beam',

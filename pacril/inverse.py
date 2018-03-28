@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
+from __future__ import division, print_function, absolute_import
 import numpy as np
-import scipy
+import scipy.linalg
+import scipy.sparse
+
 
 __all__ = ['find_influenceline_lstsq', 'find_influenceline_fourier',
            'find_loadmagnitude_vector', 'find_influenceline_fastmatrix',
@@ -37,7 +40,7 @@ def find_influenceline_lstsq(z, f):
     f1[:Nf] = f
     Nl = Nz - Nf + 1
     F = scipy.linalg.toeplitz(f1, np.zeros(Nl))
-    l, _, _, _ = np.linalg.lstsq(F, z)
+    l, _, _, _ = scipy.linalg.lstsq(F, z)
     return l
 
 
@@ -134,7 +137,8 @@ def find_loadmagnitude_vector(z, l, xp, fx=10.):
     l1 = np.zeros_like(z)
     l1[:Nl] = l
     IL = scipy.linalg.toeplitz(l1, np.zeros(Nf))[:, nxp]
-    p, _, _, _ = np.linalg.lstsq(IL, z)
+
+    p, _, _, _ = scipy.linalg.lstsq(IL, z)
     return p
 
 

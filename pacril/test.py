@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+from __future__ import division, print_function, absolute_import
 import numpy as np
 import scipy
 import copy
-from __init__ import *
+from pacril import *
 import unittest
 
 
@@ -308,7 +309,7 @@ class TestRollingStock(TestLocomotive):
 
     def test_get_neighbor_train(self):
         x0 = self.rs.get_train(25)
-        for n in xrange(10000):
+        for n in range(10000):
             self.rs.get_neighbor_train(x0)
 
 
