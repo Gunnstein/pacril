@@ -367,7 +367,7 @@ class BaseLoad(object):
 
     def todict(self):
         """Returns the dictionary representation of the object."""
-        return {"xp": self.xp, "p": self.p, "cls": type(self).__name__}
+        return {"xp": self.xp, "p": self.p, "pacrilcls": type(self).__name__}
 
     def __repr__(self):
         return repr(self.todict())
@@ -836,51 +836,12 @@ class RollingStock(object):
         d["wagons"] = self.wagons
         d["locomotive_pmf"] = self.locomotive_pmf
         d["wagon_pmf"] = self.wagon_pmf
-        d["cls"] = type(self).__name__
+        d["pacrilcls"] = type(self).__name__
         return d
 
     def __repr__(self):
         return repr(self.todict())
 
-import json
-
-class PacrilJsonEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        elif isinstance(obj, BaseLoad):
-            return obj.todict()
-        return super(PacrilJsonEncoder, self).default(obj)
-
-
-class PacrilJsonDecoder(json.JSONDecoder):
-    def __init__(self, *args, **kwargs):
-        super(PacrilJsonDecoder, self).__init__(
-            *args, object_hook=self.object_hook, **kwargs)
-
-    def object_hook(self, obj):
-        if "cls" not in obj:
-            return obj
-
-        cls = obj["cls"]
-        if cls == "Load":
-            return Load(obj["xp"], obj["p"])
-        elif cls == "Locomotive":
-            return Locomotive(obj["xp"], obj["p"])
-        elif cls == "TwoAxleWagon":
-            return TwoAxleWagon(obj["p"], obj["a"], obj["b"], obj["pempty"])
-        elif cls == "BogieWagon":
-            return BogieWagon(
-                obj["p"], obj["a"], obj["b"], obj["c"], obj["pempty"])
-        elif cls == "JacobsWagon":
-            return JacobsWagon(
-                obj["p"], obj["a"], obj["b"], obj["c"], obj["pempty"])
-        elif cls == "Train":
-            return Train(obj["locomotive"], obj["wagons"])
-        elif cls == "RollingStock":
-            return RollingStock(
-                obj["locomotives"], obj["wagons"], obj["locomotive_pmf"],
-                obj["wagon_pmf"])
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
@@ -893,20 +854,12 @@ if __name__ == '__main__':
     wagons = [TwoAxleWagon(p, 3., 4., 3.) for p in [12., 4.]]
     rs = RollingStock([loc], wagons)
 
-    for __ in xrange(1000):
-        x0 = rs.get_train(np.random.randint(3, 50))
-        s = json.dumps(x0, cls=PacrilJsonEncoder)
-        tr = json.loads(s, cls=PacrilJsonDecoder)
-        np.testing.assert_equal(x0.loadvector, tr.loadvector)
+    x0 = rs.get_train(5)
 
-
-
-    # l = _influence_line.get_il_two_span_simply_supported_beam(11., .25)
-    # plt.figure(2)
-    # plt.plot(x0.apply(l))
-    # print(rs)
-    # print(wagons[0])
-    # x1 = rs.get_neighbor_train(x0)
-    # plt.plot(x1.apply(l))
-    # plt.plot(x0.apply(l))
-    # plt.show(block=True)
+    l = _influence_line.get_il_two_span_simply_supported_beam(11., .25)
+    plt.figure(2)
+    plt.plot(x0.apply(l))
+    x1 = rs.get_neighbor_train(x0)
+    plt.plot(x1.apply(l))
+    plt.plot(x0.apply(l))
+    plt.show(block=True)

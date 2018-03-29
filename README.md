@@ -25,9 +25,9 @@ The package includes modules for:
 
 - Generating the load vector.
 - Determining influence lines and loads from data.
-- Data for easy access to load vectors etc.
+- Data for easy access to rolling stock information and influence lines.
 
-An example is provided (example.py) which is the easiest way to get into the use of the package, the result from the example is the figure shown below.
+Examples are provided (example.py, example_oop.py), which is the easiest way to get into the use of the package, the result from one example is the figure shown below.
 
 ![Figure from example.py](example.png)
 

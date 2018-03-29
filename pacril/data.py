@@ -3,6 +3,8 @@ from __future__ import division, print_function, absolute_import
 import numpy as np
 import scipy.stats as stats
 import pacril._load as _load
+import pacril.serialize as _serialize
+from pacril.serialize import PacrilJSONEncoder
 
 
 LOCOMOTIVES = {
@@ -271,12 +273,11 @@ class NorwegianLocomotive(_load.Locomotive):
         loc = LOCOMOTIVES[litra][sublitra]
         super(NorwegianLocomotive, self).__init__(loc['xp'], loc['p'])
 
-    def __repr__(self):
-        array = np.array
-        r0 = eval(super(NorwegianLocomotive, self).__repr__())
-        r0["litra"] = self.litra
-        r0["sublitra"] = self.sublitra
-        return repr(r0)
+    def todict(self):
+        d = super(NorwegianLocomotive, self).todict()
+        d["litra"] = self.litra
+        d["sublitra"] = self.sublitra
+        return d
 
     def __str__(self):
         return "{0}({1},{2})".format(type(self).__name__, self.litra,
@@ -314,6 +315,8 @@ class NorwegianRollingStock(_load.RollingStock):
         The train type, see the table above.
     """
     def __init__(self, period, traintype):
+        self.period = period
+        self.traintype = traintype
         locs, wags = [], []
         ttl = traintype.lower()
         if period == 1: # -- 1900
@@ -527,6 +530,25 @@ class NorwegianRollingStock(_load.RollingStock):
                         for b in [14.2, 14.9]
                         for c in [1.8]])
         super(NorwegianRollingStock, self).__init__(locs, wags)
+
+    def todict(self):
+        d = super(NorwegianRollingStock, self).todict()
+        d["period"] = self.period
+        d["traintype"] = self.traintype
+        return d
+
+
+class PacrilJSONDecoder(_serialize.PacrilJSONDecoder):
+    def object_hook(self, obj):
+        if "pacrilcls" not in obj:
+            return obj
+        pacrilcls = obj["pacrilcls"]
+        if pacrilcls == "NorwegianLocomotive":
+            return NorwegianLocomotive(obj["litra"], obj["sublitra"])
+        elif pacrilcls == "NorwegianRollingStock":
+            return NorwegianRollingStock(obj["period"], obj["traintype"])
+        else:
+            return super(PacrilJSONDecoder, self).object_hook(obj)
 
 
 if __name__ == '__main__':

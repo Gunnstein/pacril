@@ -3,6 +3,7 @@ from __future__ import division, print_function, absolute_import
 import numpy as np
 import scipy
 import copy
+import json
 from pacril import *
 import unittest
 
@@ -311,6 +312,35 @@ class TestRollingStock(TestLocomotive):
         x0 = self.rs.get_train(25)
         for n in range(10000):
             self.rs.get_neighbor_train(x0)
+
+
+class TestPacrilJSONDeEncoder(unittest.TestCase):
+    def setUp(self):
+        xploc = np.array([0., 2.2, 5.4, 9.5, 12.7, 14.9])
+        ploc = np.array([18., 18., 18., 18.])
+        loc = Locomotive(xploc, ploc)
+
+        wagons = [TwoAxleWagon(p, a, b, 3.)
+                  for p in [12., 4., 14., 9.]
+                  for a, b in [(3., 4.), (5., 7.)]]
+        self.rs = RollingStock([loc], wagons)
+        self.JSONEncoder = serialize.PacrilJSONEncoder
+        self.JSONDecoder = serialize.PacrilJSONDecoder
+
+    def test_load(self):
+        for n in np.random.randint(10, 51, 500):
+            tr_true = self.rs.get_train(n)
+            s = json.dumps(tr_true, cls=self.JSONEncoder)
+            tr_est = json.loads(s, cls=self.JSONDecoder)
+            np.testing.assert_almost_equal(tr_true.loadvector,
+                                           tr_est.loadvector)
+
+
+class TestDataNorwegianPacrilJSONDeEncoder(TestPacrilJSONDeEncoder):
+    def setUp(self):
+        self.rs = data.NorwegianRollingStock(3, "f")
+        self.JSONEncoder = data.PacrilJSONEncoder
+        self.JSONDecoder = data.PacrilJSONDecoder
 
 
 if __name__ == '__main__':

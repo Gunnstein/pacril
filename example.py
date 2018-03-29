@@ -5,12 +5,11 @@ import matplotlib.pyplot as plt
 import pacril
 
 # First we get some of the data to work with which is available in the package,
-# specifically the 2'C-2'2' locomotive
-locomotives = pacril.data.LOCOMOTIVES
-loc = locomotives["2'C-2'2'"]["a"]
+# specifically the 2'C-2'2' locomotive.
+loc = pacril.data.NorwegianLocomotive("2'C-2'2'", "a")
 
 # We then find the load vector for the locomotive.
-f = pacril.get_loadvector(loc['p'], loc['xp'])
+f = pacril.get_loadvector(loc.p, loc.xp)
 xf = pacril.get_coordinate_vector(f)
 
 # We also load a influence line available in pacril, the strain influence line
@@ -28,8 +27,7 @@ xz = pacril.get_coordinate_vector(z)
 l_lstsq = pacril.find_influenceline_lstsq(z, f)
 l_fd = pacril.find_influenceline_fourier(z, f)
 
-
-# Let us present the data
+# Finally we present the data
 fig = plt.figure(dpi=300)
 axf = plt.subplot2grid((2, 2), (0, 0))
 axf.plot(xf, f)
