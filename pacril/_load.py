@@ -319,6 +319,7 @@ class BaseLoad(object):
 
     """
     def __init__(self):
+        super(BaseLoad, self).__init__()
         self.fx = 10.
 
     def copy(self):
@@ -364,8 +365,12 @@ class BaseLoad(object):
         else:
             return value
 
+    def todict(self):
+        """Returns the dictionary representation of the object."""
+        return {"xp": self.xp, "p": self.p, "cls": type(self).__name__}
+
     def __repr__(self):
-        return repr({"xp": self.xp, "p": self.p, "cls": type(self).__name__})
+        return repr(self.todict())
 
 
 class Load(BaseLoad):
@@ -426,11 +431,10 @@ class BaseVehicle(BaseLoad):
         pempty = self.pempty
         return (p - pempty).sum()
 
-    def __repr__(self):
-        array = np.array
-        r0 = eval(super(BaseVehicle, self).__repr__())
-        r0["pempty"] = self.pempty
-        return repr(r0)
+    def todict(self):
+        d = super(BaseVehicle, self).todict()
+        d["pempty"] = self.pempty
+        return d
 
 
 class Locomotive(BaseVehicle):
@@ -500,12 +504,11 @@ class TwoAxleWagon(BaseVehicle):
         self.a = a
         self.b = b
 
-    def __repr__(self):
-        array = np.array
-        r0 = eval(super(TwoAxleWagon, self).__repr__())
-        r0["a"] = self.a
-        r0["b"] = self.b
-        return repr(r0)
+    def todict(self):
+        d = super(TwoAxleWagon, self).todict()
+        d["a"] = self.a
+        d["b"] = self.b
+        return d
 
     def __str__(self):
         return "T({0:.1f}, {1:.1f}, {2:.1f})".format(self.p.mean(), self.a,
@@ -547,13 +550,12 @@ class BogieWagon(BaseVehicle):
         self.b = b
         self.c = c
 
-    def __repr__(self):
-        array = np.array
-        r0 = eval(super(BogieWagon, self).__repr__())
-        r0["a"] = self.a
-        r0["b"] = self.b
-        r0["c"] = self.c
-        return repr(r0)
+    def todict(self):
+        d = super(BogieWagon, self).todict()
+        d["a"] = self.a
+        d["b"] = self.b
+        d["c"] = self.c
+        return d
 
     def __str__(self):
         return "B({0:.1f}, {1:.1f}, {2:.1f}, {3:.1f})".format(
@@ -595,13 +597,12 @@ class JacobsWagon(BaseVehicle):
         self.b = b
         self.c = c
 
-    def __repr__(self):
-        array = np.array
-        r0 = eval(super(JacobsWagon, self).__repr__())
-        r0["a"] = self.a
-        r0["b"] = self.b
-        r0["c"] = self.c
-        return repr(r0)
+    def todict(self):
+        d = super(JacobsWagon, self).todict()
+        d["a"] = self.a
+        d["b"] = self.b
+        d["c"] = self.c
+        return d
 
     def __str__(self):
         return "J({0:.1f}, {1:.1f}, {2:.1f}, {3:.1f})".format(
@@ -720,12 +721,11 @@ class Train(BaseVehicle):
         """
         self.wagons.pop(ix)
 
-    def __repr__(self):
-        array = np.array
-        r0 = eval(super(Train, self).__repr__())
-        r0["locomotive"] = self.locomotive
-        r0["wagons"] = self.wagons
-        return repr(r0)
+    def todict(self):
+        d = super(Train, self).todict()
+        d["locomotive"] = self.locomotive
+        d["wagons"] = self.wagons
+        return d
 
 
 class RollingStock(object):
@@ -830,19 +830,62 @@ class RollingStock(object):
                 train_new.swap_wagon(n, self.choose_wagons(1)[0])
         return train_new
 
+    def todict(self):
+        d = dict()
+        d["locomotives"] = self.locomotives
+        d["wagons"] = self.wagons
+        d["locomotive_pmf"] = self.locomotive_pmf
+        d["wagon_pmf"] = self.wagon_pmf
+        d["cls"] = type(self).__name__
+        return d
+
     def __repr__(self):
-        r0 = dict()
-        r0["locomotives"] = self.locomotives
-        r0["wagons"] = self.wagons
-        r0["locomotive_pmf"] = self.locomotive_pmf
-        r0["wagons_pmf"] = self.wagon_pmf
-        r0["cls"] = type(self).__name__
-        return repr(r0)
+        return repr(self.todict())
+
+import json
+
+class PacrilJsonEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, BaseLoad):
+            return obj.todict()
+        return super(PacrilJsonEncoder, self).default(obj)
+
+
+class PacrilJsonDecoder(json.JSONDecoder):
+    def __init__(self, *args, **kwargs):
+        super(PacrilJsonDecoder, self).__init__(
+            *args, object_hook=self.object_hook, **kwargs)
+
+    def object_hook(self, obj):
+        if "cls" not in obj:
+            return obj
+
+        cls = obj["cls"]
+        if cls == "Load":
+            return Load(obj["xp"], obj["p"])
+        elif cls == "Locomotive":
+            return Locomotive(obj["xp"], obj["p"])
+        elif cls == "TwoAxleWagon":
+            return TwoAxleWagon(obj["p"], obj["a"], obj["b"], obj["pempty"])
+        elif cls == "BogieWagon":
+            return BogieWagon(
+                obj["p"], obj["a"], obj["b"], obj["c"], obj["pempty"])
+        elif cls == "JacobsWagon":
+            return JacobsWagon(
+                obj["p"], obj["a"], obj["b"], obj["c"], obj["pempty"])
+        elif cls == "Train":
+            return Train(obj["locomotive"], obj["wagons"])
+        elif cls == "RollingStock":
+            return RollingStock(
+                obj["locomotives"], obj["wagons"], obj["locomotive_pmf"],
+                obj["wagon_pmf"])
 
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import _influence_line
-    import timeit
+
     xploc = np.array([0., 2.2, 5.4, 9.5, 12.7, 14.9])
     ploc = np.array([18., 18., 18., 18.])
     loc = Locomotive(xploc, ploc)
@@ -850,13 +893,20 @@ if __name__ == '__main__':
     wagons = [TwoAxleWagon(p, 3., 4., 3.) for p in [12., 4.]]
     rs = RollingStock([loc], wagons)
 
-    x0 = rs.get_train(11)
-    l = _influence_line.get_il_simply_supported_beam(4., .2)
-    plt.figure(2)
-    plt.plot(x0.apply(l))
-    print(rs)
-    print(wagons[0])
-    x1 = rs.get_neighbor_train(x0)
-    plt.plot(x1.apply(l))
-    plt.plot(x0.apply(l))
-    plt.show(block=True)
+    for __ in xrange(1000):
+        x0 = rs.get_train(np.random.randint(3, 50))
+        s = json.dumps(x0, cls=PacrilJsonEncoder)
+        tr = json.loads(s, cls=PacrilJsonDecoder)
+        np.testing.assert_equal(x0.loadvector, tr.loadvector)
+
+
+
+    # l = _influence_line.get_il_two_span_simply_supported_beam(11., .25)
+    # plt.figure(2)
+    # plt.plot(x0.apply(l))
+    # print(rs)
+    # print(wagons[0])
+    # x1 = rs.get_neighbor_train(x0)
+    # plt.plot(x1.apply(l))
+    # plt.plot(x0.apply(l))
+    # plt.show(block=True)
