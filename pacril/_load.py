@@ -365,7 +365,7 @@ class BaseLoad(object):
             return value
 
     def __repr__(self):
-        return repr({"xp": self.xp, "p": self.xp, "cls": type(self).__name__})
+        return repr({"xp": self.xp, "p": self.p, "cls": type(self).__name__})
 
 
 class Load(BaseLoad):
@@ -831,7 +831,6 @@ class RollingStock(object):
         return train_new
 
     def __repr__(self):
-        array = np.array
         r0 = dict()
         r0["locomotives"] = self.locomotives
         r0["wagons"] = self.wagons
