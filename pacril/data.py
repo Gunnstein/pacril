@@ -271,6 +271,17 @@ class NorwegianLocomotive(_load.Locomotive):
         loc = LOCOMOTIVES[litra][sublitra]
         super(NorwegianLocomotive, self).__init__(loc['xp'], loc['p'])
 
+    def __repr__(self):
+        array = np.array
+        r0 = eval(super(NorwegianLocomotive, self).__repr__())
+        r0["litra"] = self.litra
+        r0["sublitra"] = self.sublitra
+        return repr(r0)
+
+    def __str__(self):
+        return "{0}({1},{2})".format(type(self).__name__, self.litra,
+                                     self.sublitra)
+
 
 class NorwegianRollingStock(_load.RollingStock):
     """Rolling stock for different periods and train types in Norway
@@ -522,6 +533,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     rs = NorwegianRollingStock(6, 'f')
+    print(rs)
     plt.figure(dpi=144)
     for n in xrange(3):
         train = rs.get_train(np.random.randint(10, 50))

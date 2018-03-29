@@ -4,7 +4,6 @@ import numpy as np
 import scipy
 import copy
 
-
 __all__ = ['get_loadvector', 'join_loads', 'find_daf_EC3',
            'get_geometry_twoaxle_wagon', 'get_loadvector_twoaxle_wagon',
            'get_geometry_bogie_wagon', 'get_loadvector_bogie_wagon',
@@ -309,7 +308,7 @@ def find_daf_EC3(v, L):
         K = vms / 160.
     else:
         K = vms / (47.16*L**0.408)
-    phi1 = K / ( 1 - K + K**4)
+    phi1 = K / (1. - K + K**4)
     phi11 = 0.56 * np.exp(-L**2/100.)
     return 1 + .5*(phi1+.5*phi11)
 
@@ -328,7 +327,6 @@ class BaseLoad(object):
     @property
     def loadvector(self):
         return get_loadvector(self.p, self.xp, self.fx)
-
 
     def apply(self, influence_line):
         """Apply the load to the influence line to obtain the response
@@ -365,6 +363,9 @@ class BaseLoad(object):
                 return np.array(value)
         else:
             return value
+
+    def __repr__(self):
+        return repr({"xp": self.xp, "p": self.xp, "cls": type(self).__name__})
 
 
 class Load(BaseLoad):
@@ -424,6 +425,12 @@ class BaseVehicle(BaseLoad):
         p = self.p
         pempty = self.pempty
         return (p - pempty).sum()
+
+    def __repr__(self):
+        array = np.array
+        r0 = eval(super(BaseVehicle, self).__repr__())
+        r0["pempty"] = self.pempty
+        return repr(r0)
 
 
 class Locomotive(BaseVehicle):
@@ -490,6 +497,19 @@ class TwoAxleWagon(BaseVehicle):
         self.xp = get_geometry_twoaxle_wagon(a, b)
         self.p = p
         self.pempty = pempty
+        self.a = a
+        self.b = b
+
+    def __repr__(self):
+        array = np.array
+        r0 = eval(super(TwoAxleWagon, self).__repr__())
+        r0["a"] = self.a
+        r0["b"] = self.b
+        return repr(r0)
+
+    def __str__(self):
+        return "T({0:.1f}, {1:.1f}, {2:.1f})".format(self.p.mean(), self.a,
+                                                       self.b)
 
 
 class BogieWagon(BaseVehicle):
@@ -523,6 +543,21 @@ class BogieWagon(BaseVehicle):
         self.xp = get_geometry_bogie_wagon(a, b, c)
         self.p = p
         self.pempty = pempty
+        self.a = a
+        self.b = b
+        self.c = c
+
+    def __repr__(self):
+        array = np.array
+        r0 = eval(super(BogieWagon, self).__repr__())
+        r0["a"] = self.a
+        r0["b"] = self.b
+        r0["c"] = self.c
+        return repr(r0)
+
+    def __str__(self):
+        return "B({0:.1f}, {1:.1f}, {2:.1f}, {3:.1f})".format(
+            self.p.mean(), self.a, self.b, self.c)
 
 
 class JacobsWagon(BaseVehicle):
@@ -556,6 +591,21 @@ class JacobsWagon(BaseVehicle):
         self.xp = get_geometry_jacobs_wagon(a, b, c)
         self.p = p
         self.pempty = pempty
+        self.a = a
+        self.b = b
+        self.c = c
+
+    def __repr__(self):
+        array = np.array
+        r0 = eval(super(JacobsWagon, self).__repr__())
+        r0["a"] = self.a
+        r0["b"] = self.b
+        r0["c"] = self.c
+        return repr(r0)
+
+    def __str__(self):
+        return "J({0:.1f}, {1:.1f}, {2:.1f}, {3:.1f})".format(
+            self.p.mean(), self.a, self.b, self.c)
 
 
 class Train(BaseVehicle):
@@ -670,6 +720,13 @@ class Train(BaseVehicle):
         """
         self.wagons.pop(ix)
 
+    def __repr__(self):
+        array = np.array
+        r0 = eval(super(Train, self).__repr__())
+        r0["locomotive"] = self.locomotive
+        r0["wagons"] = self.wagons
+        return repr(r0)
+
 
 class RollingStock(object):
     """Rolling stock contains the possible sets of locomotives and wagons.
@@ -773,10 +830,17 @@ class RollingStock(object):
                 train_new.swap_wagon(n, self.choose_wagons(1)[0])
         return train_new
 
+    def __repr__(self):
+        array = np.array
+        r0 = dict()
+        r0["locomotives"] = self.locomotives
+        r0["wagons"] = self.wagons
+        r0["locomotive_pmf"] = self.locomotive_pmf
+        r0["wagons_pmf"] = self.wagon_pmf
+        r0["cls"] = type(self).__name__
+        return repr(r0)
 
 if __name__ == '__main__':
-
-
     import matplotlib.pyplot as plt
     import _influence_line
     import timeit
@@ -789,8 +853,10 @@ if __name__ == '__main__':
 
     x0 = rs.get_train(11)
     l = _influence_line.get_il_simply_supported_beam(4., .2)
+    plt.figure(2)
     plt.plot(x0.apply(l))
-
+    print(rs)
+    print(wagons[0])
     x1 = rs.get_neighbor_train(x0)
     plt.plot(x1.apply(l))
     plt.plot(x0.apply(l))
