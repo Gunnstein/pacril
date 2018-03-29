@@ -509,7 +509,7 @@ class TwoAxleWagon(BaseVehicle):
 
     def __str__(self):
         return "T({0:.1f}, {1:.1f}, {2:.1f})".format(self.p.mean(), self.a,
-                                                       self.b)
+                                                     self.b)
 
 
 class BogieWagon(BaseVehicle):
@@ -861,7 +861,3 @@ if __name__ == '__main__':
     plt.plot(x1.apply(l))
     plt.plot(x0.apply(l))
     plt.show(block=True)
-
-
-
-
