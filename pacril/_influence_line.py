@@ -6,7 +6,7 @@ __all__ = ['get_il_simply_supported_beam',
            'get_il_two_span_simply_supported_beam']
 
 
-def get_il_simply_supported_beam(L, xi, fx=10.):
+def get_il_simply_supported_beam(L, xi, fx=10., quantity='moment'):
     """Returns the influence line for moment of simply supported beam.
 
     The function returns the influence line for bending moment measured at
@@ -35,6 +35,8 @@ def get_il_simply_supported_beam(L, xi, fx=10.):
         sensor location. Must be in [0., 1.] or a ValueError will be raised.
     fx : Optional[float]
         The sampling frequency per length unit.
+    quantity : Optional[str]
+        The quantity of the influence line, either 'moment' or 'shear'.
 
     Returns
     -------
@@ -53,9 +55,14 @@ def get_il_simply_supported_beam(L, xi, fx=10.):
     x = np.arange(0., np.round(L*fx) + 1) * dx
     l = np.zeros_like(x)
     Nl = np.round(xi * x.size).astype(np.int)
-    l[:Nl] = (xi-1.)*x[:Nl]/L
-    l[Nl:] = (x[Nl:] / L - 1.) * xi
-    return -l * L
+    if quantity.lower() == "moment":
+        l[:Nl] = (xi-1.)*x[:Nl]/L
+        l[Nl:] = (x[Nl:] / L - 1.) * xi
+        l = l * (-L)
+    elif quantity.lower() == "shear":
+        l[:Nl] = x[:Nl] / L
+        l[Nl:] = x[Nl:] / L - 1.
+    return l
 
 
 def get_il_two_span_simply_supported_beam(L, xi, fx=10.):
@@ -135,6 +142,8 @@ if __name__ == "__main__":
         plt.plot(get_il_two_span_simply_supported_beam(8., xil),
                  label="xi={0:.2f}".format(xil))
     plt.plot(get_il_simply_supported_beam(4., .5), label='one-span')
+    plt.plot(get_il_simply_supported_beam(4., .25, quantity='shear'), lw=3)
+    plt.plot(get_il_simply_supported_beam(4., .5, quantity='shear'), lw=3)
     plt.ylabel('[Nm / N]')
     plt.legend()
     plt.show(block=True)
