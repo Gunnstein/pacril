@@ -147,7 +147,7 @@ def get_geometry_bogie_wagon(a, b, c):
     ndarray
         Geometry vector xp.
     """
-    return np.cumsum([0., a-c/2., c, b-c, c, a/2.])
+    return np.cumsum([0., a-c/2., c, b-c, c, a-c/2.])
 
 
 def get_loadvector_bogie_wagon(p, a, b, c, fx=10.):
