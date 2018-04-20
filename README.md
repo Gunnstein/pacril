@@ -13,10 +13,9 @@ PACkage to generate Responses from Influence lines and Loads (PACRIL). The packa
 
 ## Installation
 
-Download the repository to your computer and run the setup.py script, i.e
+Download the repository to your computer and run the command:
 
-    python setup.py bdist_wheel -d dist
-    pip install dist/pacril
+    pip install .
 
 
 ## Usage

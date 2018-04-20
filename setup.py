@@ -9,5 +9,5 @@ setup(name='pacril',
       author='Gunnstein T. Froeseth',
       author_email='gunnstein.t.froseth@ntnu.no',
       packages=find_packages(exclude=["test"]),
-      install_requires=['numpy', 'scipy']
+      install_requires=['numpy', 'scipy', 'nose']
      )

@@ -9,6 +9,8 @@ literature/
 
 # My ignores
 notebooks/
+venv2/
+venv3/
 
 # Distribution / packaging
 .Python
