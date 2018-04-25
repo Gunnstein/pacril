@@ -114,13 +114,13 @@ class TestPacril(unittest.TestCase):
         p_est = find_loadmagnitude_vector(z, l, xp, 10)
         np.testing.assert_almost_equal(p_est, p_true)
 
-    def test_find_daf_EC3(self):
+    def test_find_daf_EC1(self):
         v = np.asfarray([10., 33., 100., 120., 150., 175., 200.])
-        est = find_daf_EC3(v, 7.)
+        est = find_daf_EC1(v, 7.)
         tru = np.array([1.09460162, 1.11615409, 1.19069436, 1.21703429,
                         1.26073599, 1.30133390, 1.34593202])
         np.testing.assert_almost_equal(est, tru, 4)
-        est = find_daf_EC3(v, 25.)
+        est = find_daf_EC1(v, 25.)
         tru = np.array([1.00831790, 1.02784818, 1.0943087, 1.11742934,
                         1.15544947, 1.19047617,1.22875845])
         np.testing.assert_almost_equal(est, tru, 4)

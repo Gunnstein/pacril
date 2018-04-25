@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, print_function, absolute_import
 import numpy as np
-import scipy
 import copy
 
-__all__ = ['get_loadvector', 'join_loads', 'find_daf_EC3',
+__all__ = ['get_loadvector', 'join_loads', 'find_daf_EC1',
            'get_geometry_twoaxle_wagon', 'get_loadvector_twoaxle_wagon',
            'get_geometry_bogie_wagon', 'get_loadvector_bogie_wagon',
            'get_geometry_jacobs_wagon', 'get_loadvector_jacobs_wagon',
@@ -284,8 +283,11 @@ def join_loads(*args):
     return np.concatenate(args)
 
 
-def find_daf_EC3(v, L):
-    """Dynamic amplification factor according to EC1-2 annex D
+def find_daf_EC1(v, L):
+    """Dynamic amplification factor according to EC1-2 annex D.
+
+    Dynamic amplifcation factor for real trains as provided by EC1-2
+    annex D.
 
     Arguments
     ---------
@@ -293,13 +295,11 @@ def find_daf_EC3(v, L):
         Speed in km / h, should be smaller than 200 km/h.
     L : float
         Determinant length in meters.
-    n0 : float
-        The first natural bending frequency of the bridge loaded by permanent
-        actions.
 
     Returns
     -------
     float
+        The dynamic amplification factor.
     """
     if np.any(v > 200):
         raise ValueError("Speed must be smaller than 200 km/h")
