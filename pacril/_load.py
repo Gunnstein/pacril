@@ -783,7 +783,7 @@ class RollingStock(object):
         wagons = self.choose_wagons(num_wagons)
         return Train(loc, wagons)
 
-    def get_neighbor_train(self, train, fixed_length_trains=True, Nwag_min=10,
+    def get_neighbor_train(self, train, fixed_length_trains=False, Nwag_min=10,
                            Nwag_max=50):
         """Returns the neighbor train.
 
@@ -797,37 +797,35 @@ class RollingStock(object):
         Arguments
         ---------
         train : Train
-            The train instance to find the neighbor for.
+            The train to find the neighbor for.
         fixed_length_trains : bool
-            Wether or not the new train should have the same number of wagons
+            Whether or not the new train should have the same number of wagons
             as the previous train or not.
         Nwag_min,Nwag_max : int
             The minimum and maximum number of wagons that the train can consist
             of.
         """
         Nwag = train.nwagons
-        train_new = Train(train.locomotive, list(train.wagons))
-        if fixed_length_trains:
-            n = np.random.randint(-1, Nwag)
+        train_new = Train(train.locomotive, train.wagons[:])
+        if fixed_length_trains or (Nwag_min==Nwag_max):
+            n = np.random.randint(0, Nwag + 1)
         else:
-            if Nwag_min < Nwag < Nwag_max:
-                n = np.random.randint(-3, Nwag)
-            elif Nwag == Nwag_min:
-                n = np.random.randint(-2, Nwag)
-            elif Nwag == Nwag_max:
-                n = np.random.randint(-2, Nwag)
-                if n == -2:
-                    n = -3
-        if n == -3:
-            n = np.random.randint(0, Nwag)
-            train_new.remove_wagon(n)
-        elif n == -2:
-            n = np.random.randint(0, Nwag)
-            train_new.insert_wagon(n, self.choose_wagons(1)[0])
-        elif n == -1:
+            n = np.random.randint(0, Nwag + 3)
+            if n > Nwag:
+                if Nwag == Nwag_min:
+                    n = Nwag + 1
+                elif Nwag == Nwag_max:
+                    n = Nwag + 2
+        if n < Nwag:
+            train_new.swap_wagon(n, self.choose_wagons(1)[0])
+        elif n == Nwag:
             train_new.swap_locomotive(self.choose_locomotive())
-        else:
-                train_new.swap_wagon(n, self.choose_wagons(1)[0])
+        elif n == Nwag + 1:
+            k = np.random.randint(0, Nwag + 1)
+            train_new.insert_wagon(k, self.choose_wagons(1)[0])
+        elif n == Nwag + 2:
+            k = np.random.randint(0, Nwag)
+            train_new.remove_wagon(k)
         return train_new
 
     def todict(self):
@@ -851,7 +849,8 @@ if __name__ == '__main__':
     ploc = np.array([18., 18., 18., 18.])
     loc = Locomotive(xploc, ploc)
 
-    wagons = [TwoAxleWagon(p, 3., 4., 3.) for p in [12., 4.]]
+    wagons = [TwoAxleWagon(p, 3., 4., 3.) for p in [12., 12.]] \
+           + [TwoAxleWagon(p, 3., 4., 3.) for p in [4., 4.]]
     rs = RollingStock([loc], wagons)
 
     x0 = rs.get_train(5)
@@ -859,7 +858,7 @@ if __name__ == '__main__':
     l = _influence_line.get_il_two_span_simply_supported_beam(11., .25)
     plt.figure(2)
     plt.plot(x0.apply(l))
-    x1 = rs.get_neighbor_train(x0)
+    x1 = rs.get_neighbor_train(x0, Nwag_min=5, Nwag_max=5)
     plt.plot(x1.apply(l))
     plt.plot(x0.apply(l))
     plt.show(block=True)

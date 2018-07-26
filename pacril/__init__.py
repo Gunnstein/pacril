@@ -7,3 +7,4 @@ from pacril.utils import *
 from pacril import serialize
 from pacril.data import PacrilJSONEncoder, PacrilJSONDecoder
 from pacril import data
+__version__ = "1.4.0"
