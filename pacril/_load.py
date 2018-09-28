@@ -746,7 +746,6 @@ class RollingStock(object):
     def __init__(self, locomotives, wagons, loc_pmf=None, wagon_pmf=None):
         self.locomotives = locomotives
         self.wagons = wagons
-        Nloc, Nwag = len(locomotives), len(wagons)
         self.locomotive_pmf = loc_pmf
         self.wagon_pmf = wagon_pmf
 

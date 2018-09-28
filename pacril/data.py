@@ -9,7 +9,7 @@ from pacril.serialize import PacrilJSONEncoder
 
 LOCOMOTIVES = {
     "1'C1't": {
-        "a" : {
+        "a": {
             "xp": np.cumsum([0.0, 1.4, 2.6, 1.8, 1.8, 2.2, 1.5]),
             "p": np.array([10.875, 14.5, 14.5, 14.5, 10.875]),
             "speed": 75.0,
@@ -199,7 +199,7 @@ LOCOMOTIVES = {
 
 INFLUENCELINES = {
     "Hell": {
-        "fx" : 10.,
+        "fx": 10.,
         "crossgirder": np.array([
         -0.03, -0.02, -0.02, -0.01, -0.05, -0.01, -0.04, -0.04, -0.04, -0.04,
         -0.05,  0.00, -0.04, -0.01, -0.06,  0.01, -0.06, -0.02, -0.04, -0.01,
@@ -329,10 +329,10 @@ class NorwegianRollingStock(_load.RollingStock):
         =======================    ====================================
         | period |    Years   |    | traintype |    Train             |
         |--------+------------|    |-----------+----------------------|
-        |   1    |     --1900 |    |     ls    | Local suburban train |
-        |   2    | 1900--1930 |    |     p     | Passenger train      |
-        |   3    | 1930--1930 |    |     f     | Freight train        |
-        |   4    | 1960--1985 |    ====================================
+        |   1    |     --1900 |    |     p     | Passenger train      |
+        |   2    | 1900--1930 |    |     f     | Freight train        |
+        |   3    | 1930--1930 |    ====================================
+        |   4    | 1960--1985 |
         |   5    | 1985--2000 |
         |   6    | 2000--     |
         =======================
@@ -352,220 +352,201 @@ class NorwegianRollingStock(_load.RollingStock):
     """
     def __init__(self, period, traintype):
         self.period = period
-        self.traintype = traintype
+        self.traintype = traintype.lower()
         locs, wags = [], []
-        ttl = traintype.lower()
-        if period == 1: # -- 1900
-            if ttl == "ls" or ttl == "p":
-                if ttl == "ls":
-                    locs = [NorwegianLocomotive("1'C1't", "a")]
-                elif ttl == "p":
-                    locs = [NorwegianLocomotive("2'B-2", sublitra)
-                            for sublitra in ["a", "b", "c"]]
-                wags = [_load.BogieWagon(p, a, b, c, 5.0)
-                        for p in [5.0, 9.0]
-                        for a in [3.0, 3.2]
-                        for b in [11.2, 11.9]
-                        for c in [2.0, 2.1]]
-            elif ttl == "f":
+        self.Nmin, self.Nmax = None, None
+        lspc = np.linspace
+        if self.traintype == "p":
+            if self.period == 1:
+                self.maxspeed = 70
+                self.Nmin, self.Nmax = 1, 20
+                locs = [NorwegianLocomotive("2'B-2", sublitra)
+                        for sublitra in ["a", "b", "c"]]
+                ps = lspc(5.0, 9.0, 5)
+                wags = [_load.BogieWagon(pi, ai, bi, ci, ps.min())
+                        for pi in ps
+                        for ai in [3.0, 3.1, 3.2]
+                        for bi in lspc(11.2, 11.9, 3)
+                        for ci in [2.0, 2.1]]
+                self.Nmin, self.Nmax = 1, 20
+            elif self.period == 2:
+                self.maxspeed = 90
+                self.Nmin, self.Nmax = 1, 20
+                locs = ([NorwegianLocomotive("2'B-2", sublitra)
+                        for sublitra in ["a", "b", "c"]]
+                        + [NorwegianLocomotive("2'C-2'2'", sublitra)
+                           for sublitra in ["a", "b", "c"]]
+                        + [NorwegianLocomotive("2'D-2'2'", sublitra)
+                           for sublitra in ["a", "b"]])
+                ps = lspc(5.0, 11.0, 5)
+                G = [(ai, bi, ci)
+                     for ai, bi in self._get_geometry([2.4, 3.1], [11.6, 14.4])
+                     for ci in [1.9, 2.1, 2.3]]
+                wags = [_load.BogieWagon(pi, ai, bi, ci, ps.min())
+                        for pi in ps
+                        for ai, bi, ci in G]
+            elif self.period == 3:
+                self.Nmin, self.Nmax = 2, 20
+                self.maxspeed = 90
+                locs = ([NorwegianLocomotive("2'C-2'2'", sublitra)
+                         for sublitra in ["a", "b", "c"]]
+                        + [NorwegianLocomotive("2'D-2'2'", sublitra)
+                           for sublitra in ["a", "b"]]
+                        + [NorwegianLocomotive("B'B'", sublitra)
+                           for sublitra in ["a", "b"]])
+                ps = lspc(6.0, 12.0, 5)
+                G = [(ai, bi, ci)
+                     for ai, bi in self._get_geometry([1.9, 4.3], [9.1, 16.0])
+                     for ci in [2.0, 2.5, 3.0]]
+                wags = [_load.BogieWagon(pi, ai, bi, ci, ps.min())
+                        for pi in ps
+                        for ai, bi, ci in G]
+            elif self.period == 4:
+                self.Nmin, self.Nmax = 3, 20
+                self.maxspeed = 120
+                locs = ([NorwegianLocomotive("B'B'", sublitra)
+                         for sublitra in ["a", "b"]]
+                        + [NorwegianLocomotive("Bo'Bo'", sublitra)
+                           for sublitra in ["a", "b"]]
+                        + [NorwegianLocomotive("Co'Co'", sublitra)
+                           for sublitra in ["a", "b"]])
+                ps = lspc(7.5, 13.0, 5)
+                G = [(ai, bi, ci)
+                     for ai, bi in self._get_geometry([3.0, 4.2], [16.0, 20.4])
+                     for ci in [2.2, 2.5, 2.7]]
+                wags = [_load.BogieWagon(pi, ai, bi, ci, ps.min())
+                        for pi in ps
+                        for ai, bi, ci in G]
+            elif self.period == 5 or self.period == 6:
+                self.maxspeed = 160
+                self.Nmin, self.Nmax = 5, 20
+                sublitras = ["a", "b", "c", "d", "e", "f"]
+                if self.period == 6:
+                    sublitras = sublitras[2:]
+                locs = ([NorwegianLocomotive("Bo'Bo'", sublitra)
+                         for sublitra in sublitras]
+                        + [NorwegianLocomotive("Co'Co'", sublitra)
+                           for sublitra in sublitras])
+                ps = lspc(8.5, 14.0, 5)
+                G = [(ai, bi, ci)
+                     for ai, bi in self._get_geometry([3.2, 4.3], [16.5, 20.4])
+                     for ci in [2.5, 2.7]]
+                wags = [_load.BogieWagon(pi, ai, bi, ci, ps.min())
+                        for pi in ps
+                        for ai, bi, ci in G]
+        elif self.traintype == "f":
+            self.Nmin, self.Nmax = 10, 50
+            if self.period == 1:
+                self.maxspeed = 50
                 locs = [NorwegianLocomotive("1'C-3", sublitra)
                         for sublitra in ["a", "b", "c"]]
-                wags = (
-                    [_load.TwoAxleWagon(p, a, b, 2.3)
-                        for p in [2.3, 9.0]
-                        for a in [1.5, 2.5]
-                        for b in [2.5, 4.0]]
-                  + [_load.BogieWagon(p, a, b, c, 2.3)
-                        for p in [2.3, 9.0]
-                        for a in [2.0, 2.6]
-                        for b in [6.5, 11.0]
-                        for c in [1.6]]
-                )
-        elif period == 2: # 1900 -- 1930
-            if ttl == "ls" or ttl == "p":
-                if ttl == "ls":
-                    locs = [NorwegianLocomotive("1'C1't", "a")]
-                elif ttl == "p":
-                    locs = (
-                        [NorwegianLocomotive("2'B-2", sublitra)
-                         for sublitra in ["a", "b", "c"]]
-                      + [NorwegianLocomotive(litra, sublitra)
-                         for litra in ["2'C-2'2'", "2'D-2'2'"]
+                ps = lspc(2.3, 9.0, 5)
+                GT = self._get_geometry([1.5, 2.5], [2.5, 4.0])
+                wags = [_load.TwoAxleWagon(pi, ai, bi, ps.min())
+                        for pi in ps
+                        for ai, bi in GT]
+            elif self.period == 2:
+                self.maxspeed = 65
+                locs = ([NorwegianLocomotive("1'C-3", sublitra)
+                        for sublitra in ["a", "b", "c"]]
+                        + [NorwegianLocomotive("1'D-2'2'", sublitra)
+                        for sublitra in ["a", "b", "c", "d"]])
+                ps = lspc(3.0, 12.0, 5)
+                GT = self._get_geometry([1.5, 2.5], [2.5, 5.0])
+                wags = [_load.TwoAxleWagon(pi, ai, bi, ps.min())
+                        for pi in ps
+                        for ai, bi in GT]
+            elif self.period == 3:
+                self.maxspeed = 65
+                locs = ([NorwegianLocomotive("1'D-2'2'", sublitra)
+                         for sublitra in ["a", "b", "c", "d"]]
+                        + [NorwegianLocomotive("1'E-2'2'", "a")]
+                        + [NorwegianLocomotive("B'B'", sublitra)
+                           for sublitra in ["a", "b"]])
+                ps = lspc(3.7, 15.0, 5)
+                GT = self._get_geometry([1.5, 3.0], [3.5, 7.0])
+                wags = [_load.TwoAxleWagon(pi, ai, bi, ps.min())
+                        for pi in ps
+                        for ai, bi in GT]
+            elif self.period == 4:
+                self.maxspeed = 80
+                locs = ([NorwegianLocomotive("B'B'", sublitra)
                          for sublitra in ["a", "b"]]
-                    )
-                wags = [_load.BogieWagon(p, a, b, c, 5.0)
-                        for p in [5.0, 11.0]
-                        for a in [2.4, 3.1]
-                        for b in [11.6, 14.4]
-                        for c in [1.9, 2.3]]
-            elif ttl == "f":
-                locs = (
-                    [NorwegianLocomotive("1'C-3", sublitra)
-                     for sublitra in ["a", "b", "c"]]
-                  + [NorwegianLocomotive("1'D-2'2'", sublitra)
-                     for sublitra in ["a", "b", "c", "d"]]
-                )
-                wags = (
-                    [_load.TwoAxleWagon(p, a, b, 3.0)
-                        for p in [3.0, 12.0]
-                        for a in [1.5, 2.5]
-                        for b in [2.5, 5.0]]
-                  + [_load.BogieWagon(p, a, b, c, 3.0)
-                        for p in [3.0, 12.0]
-                        for a in [2.2, 2.7]
-                        for b in [6.5, 11.5]
-                        for c in [1.6, 1.9]]
-                )
-        elif period == 3: # 1930 -- 1960
-            if ttl == "ls" or ttl == "p":
-                if ttl == "ls":
-                    xp = _load.get_geometry_bogie_wagon(3.6, 15.0, 2.5)
-                    p = np.array([13.0]*4)
-                    locs = [_load.Locomotive(xp, p)]
-                elif ttl == "p":
-                    locs = (
-                        [NorwegianLocomotive(litra, sublitra)
-                         for litra in ["2'C-2'2'", "2'D-2'2'", "B'B'"]
-                         for sublitra in ["a", "b"]]
-                    )
-                wags = [_load.BogieWagon(p, a, b, c, 6.0)
-                        for p in [6.0, 12.0]
-                        for a in [1.9, 4.3]
-                        for b in [9.1, 16.0]
-                        for c in [2.0, 3.0]]
-            elif ttl == "f":
-                locs = (
-                    [NorwegianLocomotive("1'E-2'2'", sublitra)
-                     for sublitra in ["a"]]
-                    + [NorwegianLocomotive("1'D-2'2'", sublitra)
-                       for sublitra in ["a", "b", "c", "d"]]
-                    + [NorwegianLocomotive("B'B'", sublitra)
-                       for sublitra in ["a", "b"]]
-                )
-
-                wags = (
-                    [_load.TwoAxleWagon(p, a, b, 3.0)
-                        for p in [3.0, 15.0]
-                        for a in [1.5, 3.0]
-                        for b in [3.5, 7.0]]
-                  + [_load.BogieWagon(p, a, b, c, 3.0)
-                        for p in [3.0, 15.0]
-                        for a in [2.4, 2.7]
-                        for b in [8.0, 12.0]
-                        for c in [2.0]]
-                )
-        elif period == 4: # 1960 -- 1985
-            if ttl == "ls" or ttl == "p":
-                if ttl == "ls":
-                    xp = _load.get_geometry_bogie_wagon(3.8, 16.0, 2.5)
-                    p = np.array([16.0]*4)
-                    locs = [_load.Locomotive(xp, p),]
-                elif ttl == "p":
-                    locs = (
-                        [NorwegianLocomotive(litra, sublitra)
-                         for litra in ["Bo'Bo'", "Co'Co'", "B'B'"]
-                         for sublitra in ["a", "b",]]
-                    )
-                wags = [_load.BogieWagon(p, a, b, c, 7.5)
-                        for p in [7.5, 13.0]
-                        for a in [3.0, 4.2]
-                        for b in [16.0, 20.4]
-                        for c in [2.2, 2.7]]
-            elif ttl == "f":
-                locs = ([NorwegianLocomotive(litra, sublitra)
-                         for litra in ["Bo'Bo'", "Co'Co'", "B'B'"]
-                         for sublitra in ["a", "b", ]]
-                )
-                wags = (
-                    [_load.TwoAxleWagon(p, a, b, 5.0)
-                        for p in [5.0, 18.0]
-                        for a in [2.0, 4.1]
-                        for b in [5.5, 9.0]]
-                  + [_load.BogieWagon(p, a, b, c, 5.0)
-                        for p in [5.0, 18.0]
-                        for a in [2.5, 3.2]
-                        for b in [9.0, 15.7]
-                        for c in [1.8]]
-                )
-        elif period == 5: # 1985 -- 2000
-            if ttl == "ls" or ttl == "p":
-                if ttl == "ls":
-                    xp = _load.get_geometry_bogie_wagon(3.8, 16.0, 2.6)
-                    p = np.array([18.0]*4)
-                    locs = [_load.Locomotive(xp, p),]
-                elif ttl == "p":
-                    locs = (
-                        [NorwegianLocomotive(litra, sublitra)
-                         for litra in ["Bo'Bo'", "Co'Co'"]
-                         for sublitra in ["a", "b", "c", "d", "e", "f"]]
-                    )
-                wags = [_load.BogieWagon(p, a, b, c, 8.5)
-                        for p in [8.5, 14.0]
-                        for a in [3.2, 4.3]
-                        for b in [16.5, 20.4]
-                        for c in [2.5, 2.7]]
-            elif ttl == "f":
-                locs = ([NorwegianLocomotive(litra, sublitra)
-                         for litra in ["Bo'Bo'", "Co'Co'"]
-                         for sublitra in ["a", "b", "c", "d", "e", "f"]]
-                )
-
-                wags = (
-                    [_load.TwoAxleWagon(p, a, b, 5.6)
-                        for p in [5.6, 22.5]
-                        for a in [2.3, 4.1]
-                        for b in [7.5, 11.0]]
-                  + [_load.BogieWagon(p, a, b, c, 5.6)
-                        for p in [5.6, 22.5]
-                        for a in [2.5]
-                        for b in [9.0, 15.7]
-                        for c in [1.8]]
-                )
-        elif period == 6: # 2000 --
-            if ttl == "ls" or ttl == "p":
-                if ttl == "ls":
-                    xp = _load.get_geometry_bogie_wagon(3.8, 16.0, 2.6)
-                    p = np.array([18.0]*4)
-                    locs = [_load.Locomotive(xp, p),]
-                elif ttl == "p":
-                    locs = (
-                        [NorwegianLocomotive(litra, sublitra)
-                         for litra in ["Bo'Bo'", "Co'Co'"]
-                         for sublitra in ["c", "d", "e", "f"]]
-                    )
-                wags = ([_load.BogieWagon(p, a, b, c, 8.5)
-                        for p in [8.5, 14.0]
-                        for a in [3.2, 4.3]
-                        for b in [16.5, 20.4]
-                        for c in [2.5, 2.7]]
-                      + [_load.JacobsWagon(p, a, b, c, 8.5)
-                        for p in [8.5, 14.0]
-                        for a in [1.6, 5.6]
-                        for b in [15.3, 18.2]
-                        for c in [2.5]]
-                )
-            elif ttl == "f":
-                locs = ([NorwegianLocomotive(litra, sublitra)
-                         for litra in ["Bo'Bo'", "Co'Co'"]
-                         for sublitra in ["c", "d", "e", "f"]]
-                         )
-
-                wags = (
-                    [_load.TwoAxleWagon(p, a, b, 5.6)
-                        for p in [5.6, 22.5]
-                        for a in [2.3, 4.1]
-                        for b in [7.5, 11.0]]
-                    + [_load.BogieWagon(p, a, b, c, 5.6)
-                        for p in [5.6, 22.5]
-                        for a in [2.5]
-                        for b in [9.0, 15.7]
-                        for c in [1.8]]
-                    + [_load.JacobsWagon(p, a, b, c, 5.6)
-                        for p in [5.6, 22.5]
-                        for a in [2.5, 2.8]
-                        for b in [14.2, 14.9]
-                        for c in [1.8]])
+                        + [NorwegianLocomotive("Bo'Bo'", sublitra)
+                           for sublitra in ["a", "b"]]
+                        + [NorwegianLocomotive("Co'Co'", sublitra)
+                           for sublitra in ["a", "b"]])
+                ps = lspc(5.0, 18.0, 5)
+                GT = self._get_geometry([2.0, 4.1], [5.5, 9.0])
+                GB = [(ai, bi, 1.8)
+                      for ai, bi in self._get_geometry([2.5, 3.2], [9.0, 15.7])
+                      ]
+                wags = ([_load.TwoAxleWagon(pi, ai, bi, ps.min())
+                        for pi in ps
+                        for ai, bi in GT]
+                        + [_load.BogieWagon(pi, ai, bi, ci, ps.min())
+                           for pi in ps
+                           for ai, bi, ci in GB])
+            elif self.period == 5 or self.period == 6:
+                self.maxspeed = 80
+                sublitras = ["a", "b", "c", "d", "e", "f"]
+                if self.period == 6:
+                    self.maxspeed = 90
+                    sublitras = sublitras[2:]
+                locs = [NorwegianLocomotive(litra, sublitra)
+                        for litra in ["Bo'Bo'", "Co'Co'"]
+                        for sublitra in sublitras]
+                ps = lspc(5.6, 22.5, 5)
+                GT = self._get_geometry([2.3, 4.1], [7.5, 11.0])
+                GB = [(2.5, bi, 1.8)
+                      for bi in np.linspace(9.0, 15.7, 5)]
+                wags = ([_load.TwoAxleWagon(pi, ai, bi, ps.min())
+                        for pi in ps
+                        for ai, bi in GT]
+                        + [_load.BogieWagon(pi, ai, bi, ci, ps.min())
+                           for pi in ps
+                           for ai, bi, ci in GB])
+                if self.period == 6:
+                    GJ = [(2.8, 14.4, 1.8), (2.8, 14.2, 1.8), (2.5, 14.9, 1.8)]
+                    wagsJ = [_load.JacobsWagon(pi, ai, bi, ci, ps.min())
+                             for pi in ps for ai, bi, ci in GJ]
+                    wags = wags + wagsJ
+        else:
+            raise ValueError("Invalid train type")
         super(NorwegianRollingStock, self).__init__(locs, wags)
+
+    def get_neighbor_train(self, train, fixed_length_trains=False,
+                           Nwag_min=None, Nwag_max=None):
+        Nmin = Nwag_min or self.Nmin
+        Nmax = Nwag_max or self.Nmax
+        return super(NorwegianRollingStock, self).get_neighbor_train(
+            train, fixed_length_trains=fixed_length_trains, Nwag_min=Nmin,
+            Nwag_max=Nmax)
+
+
+    def _get_geometry(self, x1, x2):
+        """Return a geometry set from bounds 'x1' and 'x2'
+
+        Get thirteen points evenly distributed over the domain defined
+        by the interval vectors 'x1' and 'x2'.
+
+        Arguments
+        ---------
+        x1,x2 : list
+            The lower and upper bounds for the two variables x1 and x2.
+
+        Returns
+        -------
+        ndarray
+            The geometry points (x1i, x2i) distributed over the domain
+            of the interval variables.
+        """
+        x, y = np.linspace(x1[0], x1[1], 5), np.linspace(x2[0], x2[1], 5)
+        return np.array([[x[0], y[0]], [x[4], y[0]], [x[4], y[4]],
+                         [x[0], y[4]], [x[2], y[2]], [x[2], y[0]],
+                         [x[4], y[2]], [x[2], y[4]], [x[0], y[2]],
+                         [x[1], y[1]], [x[3], y[1]], [x[3], y[3]],
+                         [x[1], y[3]]])
 
     def todict(self):
         d = super(NorwegianRollingStock, self).todict()
