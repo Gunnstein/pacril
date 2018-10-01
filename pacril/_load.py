@@ -806,7 +806,7 @@ class RollingStock(object):
         """
         Nwag = train.nwagons
         train_new = Train(train.locomotive, train.wagons[:])
-        if fixed_length_trains or (Nwag_min==Nwag_max):
+        if fixed_length_trains or (Nwag_min == Nwag_max):
             n = np.random.randint(0, Nwag + 1)
         else:
             n = np.random.randint(0, Nwag + 3)

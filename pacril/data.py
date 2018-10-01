@@ -375,7 +375,7 @@ class NorwegianRollingStock(_load.RollingStock):
                 locs = ([NorwegianLocomotive("2'B-2", sublitra)
                         for sublitra in ["a", "b", "c"]]
                         + [NorwegianLocomotive("2'C-2'2'", sublitra)
-                           for sublitra in ["a", "b", "c"]]
+                           for sublitra in ["a", "b"]]
                         + [NorwegianLocomotive("2'D-2'2'", sublitra)
                            for sublitra in ["a", "b"]])
                 ps = lspc(5.0, 11.0, 5)
@@ -389,7 +389,7 @@ class NorwegianRollingStock(_load.RollingStock):
                 self.Nmin, self.Nmax = 2, 20
                 self.maxspeed = 90
                 locs = ([NorwegianLocomotive("2'C-2'2'", sublitra)
-                         for sublitra in ["a", "b", "c"]]
+                         for sublitra in ["a", "b"]]
                         + [NorwegianLocomotive("2'D-2'2'", sublitra)
                            for sublitra in ["a", "b"]]
                         + [NorwegianLocomotive("B'B'", sublitra)
