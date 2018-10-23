@@ -360,6 +360,8 @@ class BaseLoad(object):
         if (name == "p"):
             if isinstance(value, float) or isinstance(value, np.float):
                 return np.array([value] * self.nloads)
+            elif isinstance(value, int):
+                return np.array([float(value)] * self.nloads)
             else:
                 return np.array(value)
         else:
