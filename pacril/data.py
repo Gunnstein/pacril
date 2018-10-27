@@ -196,6 +196,198 @@ LOCOMOTIVES = {
     },
 }
 
+WAGONS = {
+    "passenger": {
+        1: [{'N': 2, 'a': 2.3, 'b': 4.2, 'pmax': 9.0, 'pmin': 5.0},
+            {'N': 2, 'a': 2.6, 'b': 4.2, 'pmax': 9.0, 'pmin': 5.0},
+            {'N': 2, 'a': 2.8, 'b': 4.2, 'pmax': 9.0, 'pmin': 5.0},
+            {'N': 4, 'a': 3.1, 'b': 11.3, 'c': 2.0, 'pmax': 9.0, 'pmin': 5.0},
+            {'N': 4, 'a': 3.1, 'b': 11.8, 'c': 2.0, 'pmax': 9.0, 'pmin': 5.0},
+            {'N': 4, 'a': 3.1, 'b': 11.3, 'c': 2.1, 'pmax': 9.0, 'pmin': 5.0},
+            {'N': 4, 'a': 3.2, 'b': 11.2, 'c': 2.1, 'pmax': 9.0, 'pmin': 5.0},
+            {'N': 4, 'a': 3.2, 'b': 12.0, 'c': 2.1, 'pmax': 9.0, 'pmin': 5.0}],
+        2: [{'N': 4, 'a': 2.4, 'b': 13.4, 'c': 2.1, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 2.8, 'b': 13.2, 'c': 2.1, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 2.8, 'b': 14.4, 'c': 2.1, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 2.9, 'b': 12.5, 'c': 2.1, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 2.9, 'b': 13.5, 'c': 2.1, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 2.9, 'b': 13.7, 'c': 2.1, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 2.9, 'b': 13.8, 'c': 2.1, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 2.9, 'b': 13.8, 'c': 2.3, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 2.9, 'b': 11.6, 'c': 1.9, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 2.9, 'b': 13.1, 'c': 2.1, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 2.9, 'b': 13.4, 'c': 2.1, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 2.9, 'b': 13.6, 'c': 2.1, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 2.9, 'b': 14.1, 'c': 2.3, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 2.9, 'b': 14.4, 'c': 2.1, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 2.9, 'b': 14.4, 'c': 2.3, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 3.0, 'b': 13.6, 'c': 2.1, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 3.0, 'b': 14.4, 'c': 2.3, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 3.0, 'b': 14.1, 'c': 2.3, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 3.1, 'b': 14.0, 'c': 2.3, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 3.1, 'b': 14.2, 'c': 2.3, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 3.1, 'b': 14.1, 'c': 2.3, 'pmax': 11.0, 'pmin': 5.0},
+            {'N': 4, 'a': 3.1, 'b': 14.4, 'c': 2.3, 'pmax': 11.0, 'pmin': 5.0}],
+        3: [{'N': 4, 'a': 2.0, 'b': 16.0, 'c': 2.6, 'pmax': 12.0, 'pmin': 6.0},
+            {'N': 4, 'a': 3.0, 'b': 14.4, 'c': 2.3, 'pmax': 12.0, 'pmin': 6.0},
+            {'N': 4, 'a': 3.1, 'b': 13.4, 'c': 2.3, 'pmax': 12.0, 'pmin': 6.0},
+            {'N': 4, 'a': 3.2, 'b': 11.8, 'c': 2.1, 'pmax': 12.0, 'pmin': 6.0},
+            {'N': 4, 'a': 3.3, 'b': 14.4, 'c': 2.5, 'pmax': 12.0, 'pmin': 6.0},
+            {'N': 4, 'a': 3.4, 'b': 14.4, 'c': 2.5, 'pmax': 12.0, 'pmin': 6.0},
+            {'N': 4, 'a': 3.5, 'b': 14.5, 'c': 2.6, 'pmax': 12.0, 'pmin': 6.0},
+            {'N': 4, 'a': 3.7, 'b': 16.0, 'c': 2.6, 'pmax': 12.0, 'pmin': 6.0},
+            {'N': 4, 'a': 3.8, 'b': 15.0, 'c': 2.6, 'pmax': 12.0, 'pmin': 6.0},
+            {'N': 4, 'a': 3.8, 'b': 15.5, 'c': 2.5, 'pmax': 12.0, 'pmin': 6.0},
+            {'N': 4, 'a': 3.8, 'b': 15.5, 'c': 2.6, 'pmax': 12.0, 'pmin': 6.0},
+            {'N': 4, 'a': 3.8, 'b': 16.0, 'c': 2.6, 'pmax': 12.0, 'pmin': 6.0},
+            {'N': 4, 'a': 3.8, 'b': 16.0, 'c': 2.5, 'pmax': 12.0, 'pmin': 6.0},
+            {'N': 4, 'a': 3.8, 'b': 13.2, 'c': 3.0, 'pmax': 12.0, 'pmin': 6.0},
+            {'N': 4, 'a': 3.8, 'b': 13.2, 'c': 2.5, 'pmax': 12.0, 'pmin': 6.0},
+            {'N': 4, 'a': 3.8, 'b': 13.4, 'c': 3.0, 'pmax': 12.0, 'pmin': 6.0}],
+        4: [{'N': 4, 'a': 3.1, 'b': 13.4, 'c': 2.3, 'pmax': 13.0, 'pmin': 7.5},
+            {'N': 4, 'a': 3.2, 'b': 11.8, 'c': 2.1, 'pmax': 13.0, 'pmin': 7.5},
+            {'N': 4, 'a': 3.3, 'b': 14.4, 'c': 2.5, 'pmax': 13.0, 'pmin': 7.5},
+            {'N': 4, 'a': 3.4, 'b': 14.4, 'c': 2.5, 'pmax': 13.0, 'pmin': 7.5},
+            {'N': 4, 'a': 3.5, 'b': 14.5, 'c': 2.6, 'pmax': 13.0, 'pmin': 7.5},
+            {'N': 4, 'a': 3.7, 'b': 16.0, 'c': 2.6, 'pmax': 13.0, 'pmin': 7.5},
+            {'N': 4, 'a': 3.8, 'b': 15.0, 'c': 2.6, 'pmax': 13.0, 'pmin': 7.5},
+            {'N': 4, 'a': 3.8, 'b': 15.5, 'c': 2.5, 'pmax': 13.0, 'pmin': 7.5},
+            {'N': 4, 'a': 3.8, 'b': 15.5, 'c': 2.6, 'pmax': 13.0, 'pmin': 7.5},
+            {'N': 4, 'a': 3.8, 'b': 16.0, 'c': 2.3, 'pmax': 13.0, 'pmin': 7.5},
+            {'N': 4, 'a': 3.8, 'b': 16.0, 'c': 2.5, 'pmax': 13.0, 'pmin': 7.5},
+            {'N': 4, 'a': 3.8, 'b': 16.0, 'c': 2.6, 'pmax': 13.0, 'pmin': 7.5},
+            {'N': 4, 'a': 3.8, 'b': 13.2, 'c': 3.0, 'pmax': 13.0, 'pmin': 7.5},
+            {'N': 4, 'a': 3.8, 'b': 13.2, 'c': 2.5, 'pmax': 13.0, 'pmin': 7.5},
+            {'N': 4, 'a': 3.8, 'b': 13.4, 'c': 3.0, 'pmax': 13.0, 'pmin': 7.5},
+            {'N': 4, 'a': 4.0, 'b': 16.0, 'c': 2.5, 'pmax': 13.0, 'pmin': 7.5},
+            {'N': 4, 'a': 4.0, 'b': 17.4, 'c': 2.5, 'pmax': 13.0, 'pmin': 7.5},
+            {'N': 4, 'a': 4.0, 'b': 18.2, 'c': 2.5, 'pmax': 13.0, 'pmin': 7.5}],
+        5: [{'N': 4, 'a': 3.8, 'b': 16.0, 'c': 2.5, 'pmax': 14.0, 'pmin': 8.5},
+            {'N': 4, 'a': 3.8, 'b': 16.0, 'c': 2.6, 'pmax': 14.0, 'pmin': 8.5},
+            {'N': 4, 'a': 4.0, 'b': 16.0, 'c': 2.5, 'pmax': 14.0, 'pmin': 8.5},
+            {'N': 4, 'a': 4.0, 'b': 19.1, 'c': 2.5, 'pmax': 14.0, 'pmin': 8.5},
+            {'N': 4, 'a': 4.0, 'b': 17.4, 'c': 2.5, 'pmax': 14.0, 'pmin': 8.5},
+            {'N': 4, 'a': 4.0, 'b': 18.2, 'c': 2.5, 'pmax': 14.0, 'pmin': 8.5},
+            {'N': 4, 'a': 4.0, 'b': 18.2, 'c': 2.5, 'pmax': 14.0, 'pmin': 8.5},
+            {'N': 4, 'a': 4.0, 'b': 18.2, 'c': 2.5, 'pmax': 14.0, 'pmin': 8.5}],
+        6: [{'N': 4, 'a': 3.8, 'b': 16.0, 'c': 2.5, 'pmax': 14.0, 'pmin': 8.5},
+            {'N': 4, 'a': 3.8, 'b': 16.0, 'c': 2.6, 'pmax': 14.0, 'pmin': 8.5},
+            {'N': 4, 'a': 4.0, 'b': 16.0, 'c': 2.5, 'pmax': 14.0, 'pmin': 8.5},
+            {'N': 4, 'a': 4.0, 'b': 19.1, 'c': 2.5, 'pmax': 14.0, 'pmin': 8.5},
+            {'N': 4, 'a': 4.0, 'b': 17.4, 'c': 2.5, 'pmax': 14.0, 'pmin': 8.5},
+            {'N': 4, 'a': 4.0, 'b': 18.2, 'c': 2.5, 'pmax': 14.0, 'pmin': 8.5},
+            {'N': 4, 'a': 4.0, 'b': 18.2, 'c': 2.5, 'pmax': 14.0, 'pmin': 8.5},
+            {'N': 4, 'a': 4.0, 'b': 18.2, 'c': 2.5, 'pmax': 14.0, 'pmin': 8.5}],
+        },
+    "freight": {
+        1: [{'N': 2, 'a': 1.5, 'b': 2.9, 'pmax': 9.0, 'pmin': 2.3},
+            {'N': 2, 'a': 1.6, 'b': 3.7, 'pmax': 9.0, 'pmin': 2.3},
+            {'N': 2, 'a': 1.6, 'b': 3.7, 'pmax': 9.0, 'pmin': 2.3},
+            {'N': 2, 'a': 1.6, 'b': 3.7, 'pmax': 9.0, 'pmin': 2.3},
+            {'N': 2, 'a': 1.8, 'b': 2.8, 'pmax': 9.0, 'pmin': 2.3},
+            {'N': 2, 'a': 1.9, 'b': 3.1, 'pmax': 9.0, 'pmin': 2.3},
+            {'N': 2, 'a': 1.9, 'b': 3.0, 'pmax': 9.0, 'pmin': 2.3},
+            {'N': 2, 'a': 1.9, 'b': 3.0, 'pmax': 9.0, 'pmin': 2.3},
+            {'N': 2, 'a': 1.9, 'b': 3.0, 'pmax': 9.0, 'pmin': 2.3},
+            {'N': 2, 'a': 1.9, 'b': 3.7, 'pmax': 9.0, 'pmin': 2.3},
+            {'N': 2, 'a': 2.0, 'b': 3.7, 'pmax': 9.0, 'pmin': 2.3},
+            {'N': 2, 'a': 2.0, 'b': 3.2, 'pmax': 9.0, 'pmin': 2.3},
+            {'N': 2, 'a': 2.1, 'b': 3.8, 'pmax': 9.0, 'pmin': 2.3},
+            {'N': 2, 'a': 2.2, 'b': 4.0, 'pmax': 9.0, 'pmin': 2.3},
+            {'N': 2, 'a': 2.2, 'b': 3.8, 'pmax': 9.0, 'pmin': 2.3},
+            {'N': 2, 'a': 2.3, 'b': 3.7, 'pmax': 9.0, 'pmin': 2.3},
+            {'N': 2, 'a': 2.5, 'b': 4.0, 'pmax': 9.0, 'pmin': 2.3},
+            {'N': 2, 'a': 2.5, 'b': 3.9, 'pmax': 9.0, 'pmin': 2.3}],
+        2: [{'N': 2, 'a': 1.4, 'b': 2.8, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 1.5, 'b': 2.9, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 1.6, 'b': 3.7, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 1.8, 'b': 3.2, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 1.8, 'b': 2.0, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 1.9, 'b': 3.4, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 2.0, 'b': 3.7, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 2.0, 'b': 3.7, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 2.1, 'b': 4.0, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 2.1, 'b': 3.7, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 2.1, 'b': 4.0, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 2.1, 'b': 3.7, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 2.3, 'b': 3.7, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 2.3, 'b': 4.0, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 2.4, 'b': 4.0, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 2.4, 'b': 4.0, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 2.4, 'b': 4.4, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 2.5, 'b': 3.9, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 2.6, 'b': 4.5, 'pmax': 12.0, 'pmin': 3.0},
+            {'N': 2, 'a': 2.6, 'b': 4.5, 'pmax': 12.0, 'pmin': 3.0}],
+        3: [{'N': 2, 'a': 1.9, 'b': 3.2, 'pmax': 15.0, 'pmin': 3.7},
+            {'N': 2, 'a': 1.9, 'b': 6.0, 'pmax': 15.0, 'pmin': 3.7},
+            {'N': 2, 'a': 2.0, 'b': 3.2, 'pmax': 15.0, 'pmin': 3.7},
+            {'N': 2, 'a': 2.1, 'b': 7.2, 'pmax': 15.0, 'pmin': 3.7},
+            {'N': 2, 'a': 2.2, 'b': 5.3, 'pmax': 15.0, 'pmin': 3.7},
+            {'N': 2, 'a': 2.4, 'b': 4.0, 'pmax': 15.0, 'pmin': 3.7},
+            {'N': 2, 'a': 2.5, 'b': 5.9, 'pmax': 15.0, 'pmin': 3.7},
+            {'N': 2, 'a': 2.7, 'b': 4.0, 'pmax': 15.0, 'pmin': 3.7},
+            {'N': 2, 'a': 2.7, 'b': 6.0, 'pmax': 15.0, 'pmin': 3.7}],
+        4: [{'N': 2, 'a': 1.6, 'b': 9.0, 'pmax': 20.0, 'pmin': 5.0},
+            {'N': 2, 'a': 2.0, 'b': 7.5, 'pmax': 20.0, 'pmin': 5.0},
+            {'N': 2, 'a': 2.3, 'b': 6.5, 'pmax': 20.0, 'pmin': 5.0},
+            {'N': 2, 'a': 2.3, 'b': 9.0, 'pmax': 20.0, 'pmin': 5.0},
+            {'N': 2, 'a': 2.4, 'b': 5.7, 'pmax': 20.0, 'pmin': 5.0},
+            {'N': 2, 'a': 2.5, 'b': 9.0, 'pmax': 20.0, 'pmin': 5.0},
+            {'N': 2, 'a': 2.6, 'b': 5.7, 'pmax': 20.0, 'pmin': 5.0},
+            {'N': 2, 'a': 2.6, 'b': 9.0, 'pmax': 20.0, 'pmin': 5.0},
+            {'N': 2, 'a': 2.7, 'b': 5.7, 'pmax': 20.0, 'pmin': 5.0},
+            {'N': 2, 'a': 2.9, 'b': 8.0, 'pmax': 20.0, 'pmin': 5.0},
+            {'N': 2, 'a': 3.0, 'b': 8.0, 'pmax': 20.0, 'pmin': 5.0},
+            {'N': 2, 'a': 3.1, 'b': 8.0, 'pmax': 20.0, 'pmin': 5.0},
+            {'N': 4, 'a': 2.5, 'b': 9.0, 'c': 1.8, 'pmax': 20.0, 'pmin': 5.0},
+            {'N': 4, 'a': 2.5, 'b': 10.7, 'c': 1.8, 'pmax': 20.0, 'pmin': 5.0},
+            {'N': 4, 'a': 2.5, 'b': 15.7, 'c': 1.8, 'pmax': 20.0, 'pmin': 5.0},
+            {'N': 4, 'a': 3.2, 'b': 10.3, 'c': 1.8, 'pmax': 20.0, 'pmin': 5.0}],
+        5: [{'N': 2, 'a': 2.0, 'b': 7.5, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 2.0, 'b': 8.5, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 2.4, 'b': 5.7, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 2.5, 'b': 9.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 2.6, 'b': 9.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 2.6, 'b': 9.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 2.7, 'b': 9.3, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 2.9, 'b': 8.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 3.0, 'b': 8.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 3.1, 'b': 9.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 3.1, 'b': 8.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 3.3, 'b': 9.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 3.6, 'b': 10.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 3.8, 'b': 9.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 4.1, 'b': 9.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 4, 'a': 2.5, 'b': 9.0, 'c': 1.8, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 4, 'a': 2.5, 'b': 10.7, 'c': 1.8, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 4, 'a': 2.5, 'b': 15.7, 'c': 1.8, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 4, 'a': 3.2, 'b': 10.3, 'c': 1.8, 'pmax': 22.5, 'pmin': 5.6}],
+        6: [{'N': 2, 'a': 2.0, 'b': 7.5, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 2.0, 'b': 8.5, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 2.3, 'b': 9.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 2.5, 'b': 9.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 2.6, 'b': 9.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 2.7, 'b': 9.3, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 2.9, 'b': 8.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 3.0, 'b': 8.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 3.1, 'b': 9.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 3.1, 'b': 8.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 3.3, 'b': 9.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 3.6, 'b': 10.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 3.8, 'b': 9.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 2, 'a': 4.1, 'b': 9.0, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 4, 'a': 2.5, 'b': 8.5, 'c': 1.8, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 4, 'a': 2.5, 'b': 9.0, 'c': 1.8, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 4, 'a': 2.5, 'b': 15.7, 'c': 1.8, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 4, 'a': 2.5, 'b': 9.9, 'c': 1.8, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 4, 'a': 2.5, 'b': 10.7, 'c': 1.8, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 4, 'a': 3.2, 'b': 10.3, 'c': 1.8, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 6, 'a': 2.5, 'b': 14.9, 'c': 1.8, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 6, 'a': 2.8, 'b': 14.2, 'c': 1.8, 'pmax': 22.5, 'pmin': 5.6},
+            {'N': 6, 'a': 2.8, 'b': 14.4, 'c': 1.8, 'pmax': 22.5, 'pmin': 5.6}]
+        }
+}
+
 
 INFLUENCELINES = {
     "Hell": {
@@ -353,22 +545,15 @@ class NorwegianRollingStock(_load.RollingStock):
     def __init__(self, period, traintype):
         self.period = period
         self.traintype = traintype.lower()
-        locs, wags = [], []
+        locs, wagons = [], []
         self.Nmin, self.Nmax = None, None
-        lspc = np.linspace
+        self.pmin, self.pmax = None, None
         if self.traintype == "p":
             if self.period == 1:
                 self.maxspeed = 70
                 self.Nmin, self.Nmax = 1, 20
                 locs = [NorwegianLocomotive("2'B-2", sublitra)
                         for sublitra in ["a", "b", "c"]]
-                ps = lspc(5.0, 9.0, 5)
-                wags = [_load.BogieWagon(pi, ai, bi, ci, ps.min())
-                        for pi in ps
-                        for ai in [3.0, 3.1, 3.2]
-                        for bi in lspc(11.2, 11.9, 3)
-                        for ci in [2.0, 2.1]]
-                self.Nmin, self.Nmax = 1, 20
             elif self.period == 2:
                 self.maxspeed = 90
                 self.Nmin, self.Nmax = 1, 20
@@ -378,13 +563,6 @@ class NorwegianRollingStock(_load.RollingStock):
                            for sublitra in ["a", "b"]]
                         + [NorwegianLocomotive("2'D-2'2'", sublitra)
                            for sublitra in ["a", "b"]])
-                ps = lspc(5.0, 11.0, 5)
-                G = [(ai, bi, ci)
-                     for ai, bi in self._get_geometry([2.4, 3.1], [11.6, 14.4])
-                     for ci in [1.9, 2.1, 2.3]]
-                wags = [_load.BogieWagon(pi, ai, bi, ci, ps.min())
-                        for pi in ps
-                        for ai, bi, ci in G]
             elif self.period == 3:
                 self.Nmin, self.Nmax = 2, 20
                 self.maxspeed = 90
@@ -394,13 +572,6 @@ class NorwegianRollingStock(_load.RollingStock):
                            for sublitra in ["a", "b"]]
                         + [NorwegianLocomotive("B'B'", sublitra)
                            for sublitra in ["a", "b"]])
-                ps = lspc(6.0, 12.0, 5)
-                G = [(ai, bi, ci)
-                     for ai, bi in self._get_geometry([1.9, 4.3], [9.1, 16.0])
-                     for ci in [2.0, 2.5, 3.0]]
-                wags = [_load.BogieWagon(pi, ai, bi, ci, ps.min())
-                        for pi in ps
-                        for ai, bi, ci in G]
             elif self.period == 4:
                 self.Nmin, self.Nmax = 3, 20
                 self.maxspeed = 120
@@ -410,13 +581,6 @@ class NorwegianRollingStock(_load.RollingStock):
                            for sublitra in ["a", "b"]]
                         + [NorwegianLocomotive("Co'Co'", sublitra)
                            for sublitra in ["a", "b"]])
-                ps = lspc(7.5, 13.0, 5)
-                G = [(ai, bi, ci)
-                     for ai, bi in self._get_geometry([3.0, 4.2], [16.0, 20.4])
-                     for ci in [2.2, 2.5, 2.7]]
-                wags = [_load.BogieWagon(pi, ai, bi, ci, ps.min())
-                        for pi in ps
-                        for ai, bi, ci in G]
             elif self.period == 5 or self.period == 6:
                 self.maxspeed = 160
                 self.Nmin, self.Nmax = 5, 20
@@ -427,35 +591,18 @@ class NorwegianRollingStock(_load.RollingStock):
                          for sublitra in sublitras]
                         + [NorwegianLocomotive("Co'Co'", sublitra)
                            for sublitra in sublitras])
-                ps = lspc(8.5, 14.0, 5)
-                G = [(ai, bi, ci)
-                     for ai, bi in self._get_geometry([3.2, 4.3], [16.5, 20.4])
-                     for ci in [2.5, 2.7]]
-                wags = [_load.BogieWagon(pi, ai, bi, ci, ps.min())
-                        for pi in ps
-                        for ai, bi, ci in G]
         elif self.traintype == "f":
             self.Nmin, self.Nmax = 10, 50
             if self.period == 1:
                 self.maxspeed = 50
                 locs = [NorwegianLocomotive("1'C-3", sublitra)
                         for sublitra in ["a", "b", "c"]]
-                ps = lspc(2.3, 9.0, 5)
-                GT = self._get_geometry([1.5, 2.5], [2.5, 4.0])
-                wags = [_load.TwoAxleWagon(pi, ai, bi, ps.min())
-                        for pi in ps
-                        for ai, bi in GT]
             elif self.period == 2:
                 self.maxspeed = 65
                 locs = ([NorwegianLocomotive("1'C-3", sublitra)
                         for sublitra in ["a", "b", "c"]]
                         + [NorwegianLocomotive("1'D-2'2'", sublitra)
                         for sublitra in ["a", "b", "c", "d"]])
-                ps = lspc(3.0, 12.0, 5)
-                GT = self._get_geometry([1.5, 2.5], [2.5, 5.0])
-                wags = [_load.TwoAxleWagon(pi, ai, bi, ps.min())
-                        for pi in ps
-                        for ai, bi in GT]
             elif self.period == 3:
                 self.maxspeed = 65
                 locs = ([NorwegianLocomotive("1'D-2'2'", sublitra)
@@ -463,11 +610,6 @@ class NorwegianRollingStock(_load.RollingStock):
                         + [NorwegianLocomotive("1'E-2'2'", "a")]
                         + [NorwegianLocomotive("B'B'", sublitra)
                            for sublitra in ["a", "b"]])
-                ps = lspc(3.7, 15.0, 5)
-                GT = self._get_geometry([1.5, 3.0], [3.5, 7.0])
-                wags = [_load.TwoAxleWagon(pi, ai, bi, ps.min())
-                        for pi in ps
-                        for ai, bi in GT]
             elif self.period == 4:
                 self.maxspeed = 80
                 locs = ([NorwegianLocomotive("B'B'", sublitra)
@@ -476,17 +618,7 @@ class NorwegianRollingStock(_load.RollingStock):
                            for sublitra in ["a", "b"]]
                         + [NorwegianLocomotive("Co'Co'", sublitra)
                            for sublitra in ["a", "b"]])
-                ps = lspc(5.0, 18.0, 5)
-                GT = self._get_geometry([2.0, 4.1], [5.5, 9.0])
-                GB = [(ai, bi, 1.8)
-                      for ai, bi in self._get_geometry([2.5, 3.2], [9.0, 15.7])
-                      ]
-                wags = ([_load.TwoAxleWagon(pi, ai, bi, ps.min())
-                        for pi in ps
-                        for ai, bi in GT]
-                        + [_load.BogieWagon(pi, ai, bi, ci, ps.min())
-                           for pi in ps
-                           for ai, bi, ci in GB])
+                self.pmax = 18.0
             elif self.period == 5 or self.period == 6:
                 self.maxspeed = 80
                 sublitras = ["a", "b", "c", "d", "e", "f"]
@@ -496,24 +628,10 @@ class NorwegianRollingStock(_load.RollingStock):
                 locs = [NorwegianLocomotive(litra, sublitra)
                         for litra in ["Bo'Bo'", "Co'Co'"]
                         for sublitra in sublitras]
-                ps = lspc(5.6, 22.5, 5)
-                GT = self._get_geometry([2.3, 4.1], [7.5, 11.0])
-                GB = [(2.5, bi, 1.8)
-                      for bi in np.linspace(9.0, 15.7, 5)]
-                wags = ([_load.TwoAxleWagon(pi, ai, bi, ps.min())
-                        for pi in ps
-                        for ai, bi in GT]
-                        + [_load.BogieWagon(pi, ai, bi, ci, ps.min())
-                           for pi in ps
-                           for ai, bi, ci in GB])
-                if self.period == 6:
-                    GJ = [(2.8, 14.4, 1.8), (2.8, 14.2, 1.8), (2.5, 14.9, 1.8)]
-                    wagsJ = [_load.JacobsWagon(pi, ai, bi, ci, ps.min())
-                             for pi in ps for ai, bi, ci in GJ]
-                    wags = wags + wagsJ
         else:
             raise ValueError("Invalid train type")
-        super(NorwegianRollingStock, self).__init__(locs, wags)
+        wagons = self._get_wagons(self.period, self.traintype)
+        super(NorwegianRollingStock, self).__init__(locs, wagons)
 
     def get_neighbor_train(self, train, fixed_length_trains=False,
                            Nwag_min=None, Nwag_max=None):
@@ -523,6 +641,28 @@ class NorwegianRollingStock(_load.RollingStock):
             train, fixed_length_trains=fixed_length_trains, Nwag_min=Nmin,
             Nwag_max=Nmax)
 
+    def _get_wagons(self, period, traintype, loadlevels=5):
+        if traintype == 'p':
+            ttp = 'passenger'
+        elif traintype == 'f':
+            ttp = 'freight'
+        wagons = []
+        for w in WAGONS[ttp][period]:
+            a, b, N = w["a"], w["b"], w["N"]
+            pmin = self.pmin or w["pmin"]
+            pmax = self.pmax or w["pmax"]
+            ps = np.linspace(pmin, pmax, loadlevels)
+            for p in ps:
+                if N == 2:
+                    W = _load.TwoAxleWagon(p, a, b, pmin)
+                elif N == 4:
+                    c = w["c"]
+                    W = _load.BogieWagon(p, a, b, c, pmin)
+                elif N == 6:
+                    c = w["c"]
+                    W = _load.JacobsWagon(p, a, b, c, pmin)
+                wagons.append(W)
+        return wagons
 
     def _get_geometry(self, x1, x2):
         """Return a geometry set from bounds 'x1' and 'x2'
