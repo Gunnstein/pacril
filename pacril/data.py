@@ -639,15 +639,17 @@ class NorwegianRollingStock(_load.RollingStock):
             pmin = self.pmin or w["pmin"]
             pmax = self.pmax or w["pmax"]
             ps = np.linspace(pmin, pmax, loadlevels)
-            for p in ps:
+            for psi in ps:
+                p = np.array([psi]*N)
+                pem = np.array([pmin]*N)
                 if N == 2:
-                    W = _load.TwoAxleWagon(p, a, b, pmin)
+                    W = _load.TwoAxleWagon(p, a, b, pem)
                 elif N == 4:
                     c = w["c"]
-                    W = _load.BogieWagon(p, a, b, c, pmin)
+                    W = _load.BogieWagon(p, a, b, c, pem)
                 elif N == 6:
                     c = w["c"]
-                    W = _load.JacobsWagon(p, a, b, c, pmin)
+                    W = _load.JacobsWagon(p, a, b, c, pem)
                 wagons.append(W)
         return wagons
 
