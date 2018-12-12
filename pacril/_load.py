@@ -745,6 +745,7 @@ class RollingStock(object):
         The probability mass funcitons (probabilities) of selecting each of
         the locomotives. Same size as locomotives/wagons.
     """
+    _TrainClass = Train
     def __init__(self, locomotives, wagons, loc_pmf=None, wagon_pmf=None):
         self.locomotives = locomotives
         self.wagons = wagons
@@ -772,7 +773,7 @@ class RollingStock(object):
             return list(np.random.choice(
                 self.wagons, size=num_wagons, p=self.wagon_pmf))
 
-    def get_train(self, num_wagons):
+    def get_random_train(self, num_wagons):
         """Returns a train instance assembled randomly from the rolling stock.
 
         Arguments
@@ -782,7 +783,7 @@ class RollingStock(object):
         """
         loc = self.choose_locomotive()
         wagons = self.choose_wagons(num_wagons)
-        return Train(loc, wagons)
+        return self._TrainClass(loc, wagons)
 
     def get_neighbor_train(self, train, fixed_length_trains=False, Nwag_min=10,
                            Nwag_max=50):
@@ -807,7 +808,7 @@ class RollingStock(object):
             of.
         """
         Nwag = train.nwagons
-        train_new = Train(train.locomotive, train.wagons[:])
+        train_new = self._TrainClass(train.locomotive, train.wagons[:])
         if fixed_length_trains or (Nwag_min == Nwag_max):
             n = np.random.randint(0, Nwag + 1)
         else:

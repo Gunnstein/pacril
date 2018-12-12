@@ -298,7 +298,7 @@ class TestRollingStock(TestLocomotive):
         locs = [Locomotive(xploc, ploc)]
         wags = [TwoAxleWagon(4., 1., 2., 2.)]
         self.rs = RollingStock(locs, wags)
-        self.load = self.rs.get_train(15)
+        self.load = self.rs.get_random_train(15)
 
         self.traintrue = Train(locs[0], wags*15)
         self.xptrue = self.traintrue.xp
@@ -309,7 +309,7 @@ class TestRollingStock(TestLocomotive):
         self.nwagontrue = self.traintrue.nwagons
 
     def test_get_neighbor_train(self):
-        x0 = self.rs.get_train(25)
+        x0 = self.rs.get_random_train(25)
         for n in range(10000):
             self.rs.get_neighbor_train(x0)
 
@@ -329,7 +329,7 @@ class TestPacrilJSONDeEncoder(unittest.TestCase):
 
     def test_load(self):
         for n in np.random.randint(10, 51, 500):
-            tr_true = self.rs.get_train(n)
+            tr_true = self.rs.get_random_train(n)
             s = json.dumps(tr_true, cls=self.JSONEncoder)
             tr_est = json.loads(s, cls=self.JSONDecoder)
             np.testing.assert_almost_equal(tr_true.loadvector,
