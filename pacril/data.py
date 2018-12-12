@@ -2,9 +2,8 @@
 from __future__ import division, print_function, absolute_import
 import numpy as np
 import scipy.stats as stats
-import pacril._load as _load
-import pacril.serialize as _serialize
-from pacril.serialize import PacrilJSONEncoder
+from . import _load
+from . import serialize
 
 
 LOCOMOTIVES = {
@@ -684,7 +683,7 @@ class NorwegianRollingStock(_load.RollingStock):
         return d
 
 
-class PacrilJSONDecoder(_serialize.PacrilJSONDecoder):
+class PacrilJSONDecoder(serialize.PacrilJSONDecoder):
     def object_hook(self, obj):
         if "pacrilcls" not in obj:
             return obj
@@ -703,7 +702,7 @@ if __name__ == '__main__':
     rs = NorwegianRollingStock(6, 'f')
     print(rs)
     plt.figure(dpi=144)
-    for n in xrange(3):
+    for n in range(3):
         train = rs.get_train(np.random.randint(10, 50))
         l = INFLUENCELINES['Hell']['stringer']
         z = train.apply(l)

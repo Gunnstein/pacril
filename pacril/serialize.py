@@ -3,8 +3,8 @@ from __future__ import division, print_function, absolute_import
 import numpy as np
 import json
 import unittest
-from pacril._load import (BaseLoad, RollingStock, Locomotive, TwoAxleWagon,
-                          BogieWagon, JacobsWagon, Train)
+from ._load import (BaseLoad, RollingStock, Locomotive, TwoAxleWagon,
+                    BogieWagon, JacobsWagon, Train)
 
 __all__ = ["PacrilJSONEncoder", "PacrilJSONDecoder"]
 

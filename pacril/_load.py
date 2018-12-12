@@ -314,13 +314,21 @@ def find_daf_EC1(v, L):
 
 
 class BaseLoad(object):
-    """Parent object of load objects, all other loadobjects are children of
-    this class. All children should define xp and p upon initialization.
+    """Parent object of load objects, all other loadobjects are children
+    of this class.
 
+    Note
+    ----
+        All children should define the attributes xp and p upon
+        initialization. Ensure that xp is set before p, see
+        __setattribute__.
     """
+
+    # default spatial sampling frequency (fx samples per unit length)
+    fx = 10.
+
     def __init__(self):
         super(BaseLoad, self).__init__()
-        self.fx = 10.
 
     def copy(self):
         return copy.deepcopy(self)
@@ -355,17 +363,27 @@ class BaseLoad(object):
     def nloads(self):
         return len(self.xp)-2
 
-    def __getattribute__(self, name):
-        value = super(BaseLoad, self).__getattribute__(name)
-        if (name == "p"):
-            if isinstance(value, float) or isinstance(value, np.float):
-                return np.array([value] * self.nloads)
-            elif isinstance(value, int):
-                return np.array([float(value)] * self.nloads)
-            else:
-                return np.array(value)
+    def _getparray(self, p):
+        if isinstance(p, float) or isinstance(p, np.float):
+            v = np.array([p] * self.nloads)
+        elif isinstance(p, int):
+            v = np.array([float(p)] * self.nloads)
         else:
-            return value
+            v = np.array(p)
+        return v
+
+    def __setattr__(self, key, value):
+        if (key == "p"):
+            try:
+                v = self._getparray(value)
+                super(BaseLoad, self).__setattr__(key, v)
+            except AttributeError:
+                s = "Could not determine number of loads, implementation error? \
+                     set `xp` before `p` See pacril._load.BaseLoad "
+                raise Exception(s)
+        else:
+            super(BaseLoad, self).__setattr__(key, value)
+
 
     def todict(self):
         """Returns the dictionary representation of the object."""
@@ -417,15 +435,17 @@ class BaseVehicle(BaseLoad):
     def naxles(self):
         return len(self.xp)-2
 
-    def __getattribute__(self, name):
-        value = super(BaseVehicle, self).__getattribute__(name)
-        if (name == "pempty"):
-            if isinstance(value, float) or isinstance(value, np.float):
-                return np.array([value] * self.nloads)
-            else:
-                return np.array(value)
+    def __setattr__(self, key, value):
+        if (key == "pempty"):
+            try:
+                v = self._getparray(value)
+                super(BaseLoad, self).__setattr__(key, v)
+            except AttributeError:
+                s = "Could not determine number of loads, implementation error? \
+                     set `xp` before `p` See pacril._load.BaseLoad "
+                raise Exception(s)
         else:
-            return value
+            super(BaseVehicle, self).__setattr__(key, value)
 
     @property
     def goods_transported(self):

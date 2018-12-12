@@ -4,7 +4,7 @@ import numpy as np
 import scipy
 import copy
 import json
-from pacril import *
+from . import *
 import unittest
 
 
@@ -339,7 +339,7 @@ class TestPacrilJSONDeEncoder(unittest.TestCase):
 class TestDataNorwegianPacrilJSONDeEncoder(TestPacrilJSONDeEncoder):
     def setUp(self):
         self.rs = data.NorwegianRollingStock(3, "f")
-        self.JSONEncoder = data.PacrilJSONEncoder
+        self.JSONEncoder = serialize.PacrilJSONEncoder
         self.JSONDecoder = data.PacrilJSONDecoder
 
 
