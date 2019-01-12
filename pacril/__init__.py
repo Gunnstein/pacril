@@ -6,4 +6,4 @@ from ._influence_line import *
 from .utils import *
 from . import serialize
 from . import data
-__version__ = "1.5.4"
+__version__ = "1.5.5"

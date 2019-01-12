@@ -3,6 +3,9 @@
 !example.py
 !example_oop.py
 !pacril/
+!pacril/*/
+!pacril/data/
+!pacril/data/*
 !*.png
 !README.md
 !LICENSE

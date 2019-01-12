@@ -6,6 +6,7 @@ import copy
 import json
 from . import *
 import unittest
+from .data import eurocode as ec
 
 
 class TestPacril(unittest.TestCase):
@@ -340,7 +341,34 @@ class TestDataNorwegianPacrilJSONDeEncoder(TestPacrilJSONDeEncoder):
     def setUp(self):
         self.rs = data.NorwegianRollingStock(3, "f")
         self.JSONEncoder = serialize.PacrilJSONEncoder
-        self.JSONDecoder = data.PacrilJSONDecoder
+        self.JSONDecoder = data.norway.PacrilJSONDecoder
+
+
+class TestECFatigueTrains(unittest.TestCase):
+    def setUp(self):
+        self.trains = [ec.Type1(), ec.Type2(), ec.Type3(), ec.Type4(),
+                       ec.Type5(), ec.Type6(), ec.Type7(), ec.Type8(),
+                       ec.Type9(), ec.Type10(), ec.Type11(), ec.Type12()]
+        self.weights = np.array([663.0, 530.0, 940.0, 510.0, 2160.0, 1431.0,
+                                 1035.0, 1035.0, 296.0, 360.0, 1135.0, 1135.0])
+        self.speeds = np.array([200.0, 160.0, 250.0, 250.0, 100.0, 100.0, 80.0,
+                                100.0, 120.0, 120.0, 120.0, 100.0])
+        self.lengths = np.array([262.10, 281.10, 385.52, 237.60,
+                                 270.30, 333.10, 196.50, 212.50,
+                                 134.80, 129.60, 198.50, 212.50])
+
+    def test_weights(self):
+        weights = np.array([T.p.sum() for T in self.trains])
+        np.testing.assert_almost_equal(self.weights, weights)
+
+    def test_speeds(self):
+        speeds = np.array([T.locomotive.speed for T in self.trains])
+        np.testing.assert_almost_equal(self.speeds, speeds)
+
+    def test_lengths(self):
+        lengths = np.array([T.xp.max() for T in self.trains])
+        np.testing.assert_almost_equal(self.lengths, lengths)
+
 
 
 if __name__ == '__main__':

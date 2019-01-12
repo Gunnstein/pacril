@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import division, print_function, absolute_import
 import numpy as np
-import scipy.stats as stats
-from . import _load
-from . import serialize
+from .. import _load
+from .. import serialize
 
+__all__ = ["NorwegianLocomotive", "NorwegianRollingStock"]
 
 LOCOMOTIVES = {
     "1'C1't": {
