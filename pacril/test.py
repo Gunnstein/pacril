@@ -7,7 +7,7 @@ import json
 from . import *
 import unittest
 from .data import eurocode as ec
-
+from .data import influence_lines
 
 class TestPacril(unittest.TestCase):
     def test_get_coordinate_vector(self):
@@ -369,6 +369,15 @@ class TestECFatigueTrains(unittest.TestCase):
         lengths = np.array([T.xp.max() for T in self.trains])
         np.testing.assert_almost_equal(self.lengths, lengths)
 
+
+class TestStandardInfluenceLines(unittest.TestCase):
+    def test_get_standard_influence_line(self):
+        f = influence_lines.get_standard_influence_line
+        res = np.array([f(ilt, 13.0)[29] for ilt in range(1, 10)])
+        true = np.array([1.0, 0.4461538461538462, 0.4461538461538462,
+                         0.19913846153846154, 0.9087741547692307, 0.8783905322307692,
+                         0.928142132923077, -0.2007662183846154, 0.9526960894615384])
+        np.testing.assert_allclose(true, res)
 
 
 if __name__ == '__main__':
