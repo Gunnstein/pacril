@@ -6,7 +6,7 @@ import copy
 import json
 from . import *
 import unittest
-from .data import eurocode as ec
+from .data import UICTrainFactory, ECTrainFactory
 from .data import influence_lines
 
 class TestPacril(unittest.TestCase):
@@ -231,6 +231,26 @@ class TestTwoAxleWagon(TestLocomotive):
             ])
 
 
+class TestThreeAxleWagon(TestLocomotive):
+    def setUp(self):
+        self.load = ThreeAxleWagon(np.array([13., 21., 4.]), 2., 3.,
+                                   np.array([1., 3., 1.]))
+        self.xptrue = np.array([0.,  2.,  5.,  8., 10.])
+        self.ptrue = np.array([13., 21., 4.])
+        self.naxles = 3
+        self.goods_transported = 13.+21.+4.-1.-3.-1.
+
+        self.loadvector = np.array([
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 13., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 21., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 4., 0.,
+            0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+            0., 0.])
+
+
+
 class TestBogieWagon(TestLocomotive):
     def setUp(self):
         self.load = BogieWagon(5., 1., 2., 1., 4.)
@@ -346,9 +366,7 @@ class TestDataNorwegianPacrilJSONDeEncoder(TestPacrilJSONDeEncoder):
 
 class TestECFatigueTrains(unittest.TestCase):
     def setUp(self):
-        self.trains = [ec.Type1(), ec.Type2(), ec.Type3(), ec.Type4(),
-                       ec.Type5(), ec.Type6(), ec.Type7(), ec.Type8(),
-                       ec.Type9(), ec.Type10(), ec.Type11(), ec.Type12()]
+        self.trains = [ECTrainFactory(n) for n in range(1, 13)]
         self.weights = np.array([663.0, 530.0, 940.0, 510.0, 2160.0, 1431.0,
                                  1035.0, 1035.0, 296.0, 360.0, 1135.0, 1135.0])
         self.speeds = np.array([200.0, 160.0, 250.0, 250.0, 100.0, 100.0, 80.0,
@@ -368,6 +386,26 @@ class TestECFatigueTrains(unittest.TestCase):
     def test_lengths(self):
         lengths = np.array([T.xp.max() for T in self.trains])
         np.testing.assert_almost_equal(self.lengths, lengths)
+
+
+class TestUICTrains(TestECFatigueTrains):
+    def setUp(self):
+        self.trains = [UICTrainFactory(n) for n in range(1, 22)]
+        self.weights = np.array([126.5, 249.0, 166.0, 325.0, 205.1,
+                                 358.9, 378.0, 281.5, 470.5, 685.5,
+                                 294.0, 478.0, 732.0,  52.0, 346.0,
+                                 406.0, 971.1, 260.0, 469.0, 944.0,
+                                 2123.0])
+
+        self.lengths = np.array([64.04, 77.18, 76.15, 96.98, 95.02,
+                                 135.77, 117.99, 73.15, 173.16, 236.80,
+                                 98.78, 171.14, 271.90, 46.50, 151.10,
+                                 177.5, 262.24, 149.00, 231.70, 323.80,
+                                 342.30])
+
+    def test_speeds(self):
+        for T in self.trains:
+            assert T.locomotive.speed is None
 
 
 class TestStandardInfluenceLines(unittest.TestCase):

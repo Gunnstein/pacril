@@ -4,7 +4,7 @@ import numpy as np
 import json
 import unittest
 from ._load import (BaseLoad, RollingStock, Locomotive, TwoAxleWagon,
-                    BogieWagon, JacobsWagon, Train)
+                    ThreeAxleWagon, BogieWagon, JacobsWagon, Train)
 
 __all__ = ["PacrilJSONEncoder", "PacrilJSONDecoder"]
 
@@ -39,6 +39,8 @@ class PacrilJSONDecoder(json.JSONDecoder):
             return Locomotive(obj["xp"], obj["p"])
         elif pacrilcls == "TwoAxleWagon":
             return TwoAxleWagon(obj["p"], obj["a"], obj["b"], obj["pempty"])
+        elif pacrilcls == "ThreeAxleWagon":
+            return ThreeAxleWagon(obj["p"], obj["a"], obj["b"], obj["pempty"])
         elif pacrilcls == "BogieWagon":
             return BogieWagon(
                 obj["p"], obj["a"], obj["b"], obj["c"], obj["pempty"])

@@ -4,10 +4,11 @@ import numpy as np
 import copy
 
 __all__ = ['get_loadvector', 'join_loads', 'find_daf_EC1',
-           'get_geometry_twoaxle_wagon', 'get_loadvector_twoaxle_wagon',
-           'get_geometry_bogie_wagon', 'get_loadvector_bogie_wagon',
-           'get_geometry_jacobs_wagon', 'get_loadvector_jacobs_wagon',
-           'Load', 'Locomotive', 'TwoAxleWagon', 'BogieWagon',
+           'get_geometry_twoaxle_wagon',
+           'get_loadvector_twoaxle_wagon', 'get_geometry_bogie_wagon',
+           'get_loadvector_bogie_wagon', 'get_geometry_jacobs_wagon',
+           'get_loadvector_jacobs_wagon', 'Load', 'Locomotive',
+           'TwoAxleWagon', 'ThreeAxleWagon', 'BogieWagon',
            'JacobsWagon', 'Train', 'RollingStock', ]
 
 
@@ -115,6 +116,73 @@ def get_loadvector_twoaxle_wagon(p, a, b, fx=10.):
         The load vector
     """
     xp = get_geometry_twoaxle_wagon(a, b)
+    return get_loadvector(p, xp, fx)
+
+
+def get_geometry_threeaxle_wagon(a, b):
+    """Define geometry vector xp for a three axle wagon.
+
+    Geometry of a three axle wagon is defined by parameters a and b, see figure
+    below.
+
+            Type:          Three axle wagon
+                           +---------------+
+            Axleload:      |               |
+                        (--+---------------+--)
+                             O     O     O
+                        |----|-----|-----|----|
+            Geometry:      a    b     b    a
+
+    Arguments
+    ---------
+    a,b : float
+        Defines the geometry of the vehicle, i.e the start, end and axle
+        positions.
+
+    Returns
+    -------
+    ndarray
+        Geometry vector xp.
+    """
+    return np.cumsum([0., a, b, b, a])
+
+
+def get_loadvector_threeaxle_wagon(p, a, b, fx=10.):
+    """Define geometry vector xp for a three axle wagon.
+
+    Geometry of a three axle wagon is defined by parameters a and b, see figure
+    below.
+
+            Type:          Three axle wagon
+                           +---------------+
+            Axleload:      | p1    p2   p3 |
+                        (--+---------------+--)
+                             O     O     O
+                        |----|-----|-----|----|
+            Geometry:      a    b     b    a
+
+    Arguments
+    ---------
+    p : float or ndarray
+        Defines the axle loads, if p is a float it assumes equal axle load
+        on each axle, if p is a ndarray it defines each axle load
+        individually. Note that the array must be of size `x.size-2` or
+        an exception will be raised.
+
+    a,b : float
+        Defines the geometry of the vehicle, i.e the start, end and axle
+        positions.
+
+    fx : Optional[float]
+        The number of samples per unit coordinate, defines the coordinate
+        of the load.
+
+    Returns
+    -------
+    ndarray
+        The load vector.
+    """
+    xp = get_geometry_threeaxle_wagon(a, b)
     return get_loadvector(p, xp, fx)
 
 
@@ -384,7 +452,6 @@ class BaseLoad(object):
         else:
             super(BaseLoad, self).__setattr__(key, value)
 
-
     def todict(self):
         """Returns the dictionary representation of the object."""
         return {"xp": self.xp, "p": self.p, "pacrilcls": type(self).__name__}
@@ -535,6 +602,50 @@ class TwoAxleWagon(BaseVehicle):
     def __str__(self):
         return "T({0:.1f}, {1:.1f}, {2:.1f})".format(self.p.mean(), self.a,
                                                      self.b)
+
+
+class ThreeAxleWagon(BaseVehicle):
+    """Define a three axle wagon
+
+    The three axle wagon is defined by axleloads p and geometry
+    parameters a and b, see figure below.
+
+            Type:          Three axle wagon
+                           +---------------+
+            Axleload:      | p1   p2    p3 |
+                        (--+---------------+--)
+                             O     O     O
+                        |----|-----|-----|----|
+            Geometry:      a    b     b    a
+
+    Arguments
+    ---------
+    p, pempty : float or ndarray
+        Defines the axle loads, if float it assumes equal axle load on each
+        axle, if ndarray it defines each axle load individually.
+
+    a,b : float
+        Defines the geometry of the vehicle, i.e the start, end and axle
+        positions.
+
+    """
+    def __init__(self, p, a, b, pempty):
+        super(ThreeAxleWagon, self).__init__()
+        self.xp = get_geometry_threeaxle_wagon(a, b)
+        self.p = p
+        self.pempty = pempty
+        self.a = a
+        self.b = b
+
+    def todict(self):
+        d = super(ThreeAxleWagon, self).todict()
+        d["a"] = self.a
+        d["b"] = self.b
+        return d
+
+    def __str__(self):
+        return "Th({0:.1f}, {1:.1f}, {2:.1f})".format(
+            self.p.mean(), self.a, self.b)
 
 
 class BogieWagon(BaseVehicle):
@@ -766,6 +877,7 @@ class RollingStock(object):
         the locomotives. Same size as locomotives/wagons.
     """
     _TrainClass = Train
+
     def __init__(self, locomotives, wagons, loc_pmf=None, wagon_pmf=None):
         self.locomotives = locomotives
         self.wagons = wagons
@@ -872,7 +984,7 @@ if __name__ == '__main__':
     loc = Locomotive(xploc, ploc)
 
     wagons = [TwoAxleWagon(p, 3., 4., 3.) for p in [12., 12.]] \
-           + [TwoAxleWagon(p, 3., 4., 3.) for p in [4., 4.]]
+        + [TwoAxleWagon(p, 3., 4., 3.) for p in [4., 4.]]
     rs = RollingStock([loc], wagons)
 
     x0 = rs.get_train(5)

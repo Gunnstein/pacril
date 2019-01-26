@@ -3,75 +3,60 @@ from __future__ import division, print_function, absolute_import
 import numpy as np
 from .. import _load
 
-__all__ = ["Type{0:n}" for n in range(1, 13)]
+
+__all__ = ["ECTrainType{0:n}" for n in range(1, 13)] + ["ECTrainFactory"]
 
 
-class FatigueTrain(_load.Train):
+class BaseECTrain(_load.Train):
     @property
     def description(self):
         return self.__doc__
 
 
-class Type1(FatigueTrain):
+class ECTrainType1(BaseECTrain):
     """Locomotive-hauled passenger train"""
     def __init__(self):
         xp = np.cumsum([0., 1.4, 2.2, 2.2, 6.9, 2.2, 2.2, 1.4])
         p = np.array([22.5] * 6)
-        loc = _load.Load(xp, p)
+        loc = _load.Locomotive(xp, p)
         loc.speed = 200.0
 
-        # Wagons
-        xpA, pA = np.cumsum([0., 1.8, 2.6, 11.5, 2.6, 1.8]), np.array([11.0]*4)
-        A = _load.Load(xpA, pA)
-        wseq = [A] * 12
-        wagons = [w.copy() for w in wseq]
-        super(Type1, self).__init__(loc, wagons)
+        w = _load.BogieWagon(11.0, 1.8 + 2.6/2, 11.5 + 2.6, 2.6, 11.0)
+        wagons = [w.copy() for n in range(12)]
+        super(ECTrainType1, self).__init__(loc, wagons)
 
 
-class Type2(FatigueTrain):
+class ECTrainType2(BaseECTrain):
     """Locomotive-hauled passenger train"""
     def __init__(self):
-        # Locomotive
         xp, p = np.cumsum([0., 1.4, 3.3, 6.7, 3.3, 1.4]), np.array([22.5] * 4)
-        loc = _load.Load(xp, p)
+        loc = _load.Locomotive(xp, p)
         loc.speed = 160.0
 
-        # Wagons
-        xpA, pA = np.cumsum([0., 2.5, 2.5, 16.5, 2.5, 2.5]), np.array([11.0]*4)
-        A = _load.Load(xpA, pA)
+        w = _load.BogieWagon(11.0, 2.5 + 2.5 / 2, 16.5 + 2.5, 2.5, 11.0)
+        wagons = [w.copy() for n in range(10)]
 
-        wseq = [A] * 10
-        wagons = [w.copy() for w in wseq]
-
-        # Train
-        super(Type2, self).__init__(loc, wagons)
+        super(ECTrainType2, self).__init__(loc, wagons)
 
 
-class Type3(FatigueTrain):
+class ECTrainType3(BaseECTrain):
     """High speed passenger train"""
     def __init__(self):
-        # Locomotive
         xp = np.cumsum([0., 4.7, 3.0, 8.46, 3.0, 2.0])
         p = np.array([20.0] * 4)
-        loc = _load.Load(xp, p)
+        loc = _load.Locomotive(xp, p)
         loc.speed = 250.0
 
-        # Wagons
-        xpA = np.cumsum([0., 2.45, 2.5, 16.5, 2.5, 2.45])
-        pA = np.array([15.0]*4)
-        A = _load.Load(xpA, pA)
-
+        A = _load.BogieWagon(15.0, 2.45 + 2.5 / 2, 16.5 + 2.5, 2.5, 15.0)
         xpB, pB = np.cumsum([0., 2.0, 3.0, 8.46, 3.0, 4.7]), np.array([20.0]*4)
-        B = _load.Load(xpB, pB)
-
+        B = _load.Locomotive(xpB, pB)
         wseq = [A] * 13 + [B]
         wagons = [w.copy() for w in wseq]
 
-        # Train
-        super(Type3, self).__init__(loc, wagons)
+        super(ECTrainType3, self).__init__(loc, wagons)
 
 
-class Type4(FatigueTrain):
+class ECTrainType4(BaseECTrain):
     """High speed passenger train"""
     def __init__(self):
         # Locomotive
@@ -83,25 +68,29 @@ class Type4(FatigueTrain):
         # Wagons
         xpA, pA = np.cumsum([0., 1.65, 3.0, 15.7, 1.5]), np.array([17.0] * 3)
         wA = _load.Load(xpA, pA)
+        wA.pempty = wA.p
 
         xpB, pB = np.cumsum([0., 1.5, 15.7, 1.5]), np.array([17.0] * 2)
         wB = _load.Load(xpB, pB)
+        wB.pempty = wB.p
 
         xpC, pC = np.cumsum([0., 1.5, 15.7, 3.0, 1.65]), np.array([17.0] * 3)
         wC = _load.Load(xpC, pC)
+        wC.pempty = wC.p
 
         xpD = np.cumsum([0., 1.65, 3.0, 11.0, 3.0, 3.5])
         pD = np.array([17.0] * 4)
         wD = _load.Load(xpD, pD)
+        wD.pempty = wD.p
 
         wseq = [wA] + [wB] * 8 + [wC] + [wD]
         wagons = [w.copy() for w in wseq]
 
         # Train
-        super(Type4, self).__init__(loc, wagons)
+        super(ECTrainType4, self).__init__(loc, wagons)
 
 
-class Type5(FatigueTrain):
+class ECTrainType5(BaseECTrain):
     """Locomotive-hauled freight train"""
     def __init__(self):
         # Locomotive
@@ -114,13 +103,14 @@ class Type5(FatigueTrain):
         xp = np.cumsum([0., 2.0, 1.8, 1.8, 5.7, 1.8, 1.8, 2.0])
         p = np.array([22.5] * 6)
         A = _load.Load(xp, p)
+        A.pempty = A.p
         wagons = [A.copy() for w in range(15)]
 
         # Train
-        super(Type5, self).__init__(loc, wagons)
+        super(ECTrainType5, self).__init__(loc, wagons)
 
 
-class Type6(FatigueTrain):
+class ECTrainType6(BaseECTrain):
     """Locomotive-hauled freight train"""
     def __init__(self):
         # Locomotive
@@ -138,10 +128,10 @@ class Type6(FatigueTrain):
         wagons = [w.copy() for w in wseq]
 
         # Train
-        super(Type6, self).__init__(loc, wagons)
+        super(ECTrainType6, self).__init__(loc, wagons)
 
 
-class Type7(FatigueTrain):
+class ECTrainType7(BaseECTrain):
     """Locomotive-hauled freight train"""
     def __init__(self):
         # Locomotive
@@ -155,10 +145,10 @@ class Type7(FatigueTrain):
         wagons = [wag.copy() for n in range(10)]
 
         # Train
-        super(Type7, self).__init__(loc, wagons)
+        super(ECTrainType7, self).__init__(loc, wagons)
 
 
-class Type8(FatigueTrain):
+class ECTrainType8(BaseECTrain):
     """Locomotive-hauled freight train"""
     def __init__(self):
         # Locomotive
@@ -172,10 +162,10 @@ class Type8(FatigueTrain):
         wagons = [wag.copy() for n in range(20)]
 
         # Train
-        super(Type8, self).__init__(loc, wagons)
+        super(ECTrainType8, self).__init__(loc, wagons)
 
 
-class Type9(FatigueTrain):
+class ECTrainType9(BaseECTrain):
     """Suburban multiple unit train"""
     def __init__(self):
         # Locomotive
@@ -190,10 +180,10 @@ class Type9(FatigueTrain):
         wagons = [w.copy() for w in [wag1, wag2, wag2, wag1, wag2]]
 
         # Train
-        super(Type9, self).__init__(loc, wagons)
+        super(ECTrainType9, self).__init__(loc, wagons)
 
 
-class Type10(FatigueTrain):
+class ECTrainType10(BaseECTrain):
     """Underground"""
     def __init__(self):
         # Wagons
@@ -208,10 +198,10 @@ class Type10(FatigueTrain):
         loc.speed = 120.0
 
         # Train
-        super(Type10, self).__init__(loc, wagons)
+        super(ECTrainType10, self).__init__(loc, wagons)
 
 
-class Type11(FatigueTrain):
+class ECTrainType11(BaseECTrain):
     """Locomotive-hauled freight train"""
     def __init__(self):
         # Locomotive
@@ -225,10 +215,10 @@ class Type11(FatigueTrain):
         wagons = [wag.copy() for n in range(10)]
 
         # Train
-        super(Type11, self).__init__(loc, wagons)
+        super(ECTrainType11, self).__init__(loc, wagons)
 
 
-class Type12(FatigueTrain):
+class ECTrainType12(BaseECTrain):
     """Locomotive-hauled freight train"""
     def __init__(self):
         # Locomotive
@@ -242,4 +232,27 @@ class Type12(FatigueTrain):
         wagons = [wag.copy() for n in range(20)]
 
         # Train
-        super(Type12, self).__init__(loc, wagons)
+        super(ECTrainType12, self).__init__(loc, wagons)
+
+
+def ECTrainFactory(type_number):
+    """Factory for Eurocode real trains in Appendix D, EC1-2
+
+    Returns a new instance of Eurocode real train with type
+    `type_number`.
+
+    Arguments
+    ---------
+    type_number : int
+
+    Returns
+    -------
+    ECTrainType
+        ECTrain train number as per Eurocode appendix D.
+
+    """
+    trains = {1: ECTrainType1, 2: ECTrainType2, 3: ECTrainType3,
+              4: ECTrainType4, 5: ECTrainType5, 6: ECTrainType6,
+              7: ECTrainType7, 8: ECTrainType8, 9: ECTrainType9,
+              10: ECTrainType10, 11: ECTrainType11, 12: ECTrainType12}
+    return trains[type_number]()
