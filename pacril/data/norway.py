@@ -637,20 +637,14 @@ class NorwegianRollingStock(_load.RollingStock):
                            Nwag_min=None, Nwag_max=None):
         Nmin = Nwag_min or self.Nmin
         Nmax = Nwag_max or self.Nmax
-        while True:
-            T = super(NorwegianRollingStock, self).get_neighbor_train(
-                train, fixed_length_trains=fixed_length_trains, Nwag_min=Nmin,
-                Nwag_max=Nmax)
-            if _count_wagons(T) <= Nmax:
-                break
+        T = super(NorwegianRollingStock, self).get_neighbor_train(
+            train, fixed_length_trains=fixed_length_trains, Nwag_min=Nmin,
+            Nwag_max=Nmax)
         return T
 
     def get_train(self):
         N = np.random.randint(self.Nmin, self.Nmax+1)
-        while True:
-            T = super(NorwegianRollingStock, self).get_random_train(N)
-            if _count_wagons(T) <= self.Nmax:
-                break
+        T = super(NorwegianRollingStock, self).get_random_train(N)
         return T
 
     def _get_wagons(self, period, traintype, loadlevels=5):
