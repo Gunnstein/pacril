@@ -498,6 +498,20 @@ class NorwegianLocomotive(_load.Locomotive):
                                      self.sublitra)
 
 
+def _count_wagons(train):
+    """Count the number of wagons in a train.
+
+    Jacobswagons are counted as two wagons.
+    """
+    N = 0
+    for w in train.wagons:
+        if isinstance(w, _load.JacobsWagon):
+            N += 2
+        else:
+            N += 1
+    return N
+
+
 class NorwegianRollingStock(_load.RollingStock):
     """Rolling stock for different periods and train types in Norway
 
@@ -623,9 +637,21 @@ class NorwegianRollingStock(_load.RollingStock):
                            Nwag_min=None, Nwag_max=None):
         Nmin = Nwag_min or self.Nmin
         Nmax = Nwag_max or self.Nmax
-        return super(NorwegianRollingStock, self).get_neighbor_train(
-            train, fixed_length_trains=fixed_length_trains, Nwag_min=Nmin,
-            Nwag_max=Nmax)
+        while True:
+            T = super(NorwegianRollingStock, self).get_neighbor_train(
+                train, fixed_length_trains=fixed_length_trains, Nwag_min=Nmin,
+                Nwag_max=Nmax)
+            if _count_wagons(T) <= Nmax:
+                break
+        return T
+
+    def get_train(self):
+        N = np.random.randint(self.Nmin, self.Nmax+1)
+        while True:
+            T = super(NorwegianRollingStock, self).get_random_train(N)
+            if _count_wagons(T) <= self.Nmax:
+                break
+        return T
 
     def _get_wagons(self, period, traintype, loadlevels=5):
         if traintype == 'p':
@@ -635,21 +661,27 @@ class NorwegianRollingStock(_load.RollingStock):
         wagons = []
         for w in WAGONS[ttp][period]:
             a, b, N = w["a"], w["b"], w["N"]
+            if N > 2:
+                c = w["c"]
             pmin = self.pmin or w["pmin"]
             pmax = self.pmax or w["pmax"]
             ps = np.linspace(pmin, pmax, loadlevels)
             for psi in ps:
-                p = np.array([psi]*N)
-                pem = np.array([pmin]*N)
                 if N == 2:
-                    W = _load.TwoAxleWagon(p, a, b, pem)
+                    p, pem = np.array([psi]*N), np.array([pmin]*N)
+                    wagons.append(_load.TwoAxleWagon(p, a, b, pem))
                 elif N == 4:
-                    c = w["c"]
-                    W = _load.BogieWagon(p, a, b, c, pem)
+                    p, pem = np.array([psi]*N), np.array([pmin]*N)
+                    wagons.append(_load.BogieWagon(p, a, b, c, pem))
                 elif N == 6:
-                    c = w["c"]
-                    W = _load.JacobsWagon(p, a, b, c, pem)
-                wagons.append(W)
+                    pem = np.array([pmin]*2 + [2.*pmin]*2 + [pmin]*2)
+                    for psj in ps:
+                        p1 = psi
+                        p2 = min(psi+psj, pmax)
+                        p3 = psj
+                        p = np.array([p1]*2 + [p2]*2 + [p3]*2)
+                        wagons.append(
+                            _load.JacobsWagon(p, a, b, c, pem))
         return wagons
 
     def _get_geometry(self, x1, x2):
