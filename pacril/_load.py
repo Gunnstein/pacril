@@ -48,7 +48,7 @@ def get_loadvector(p, xp, fx=10.):
         The load vector.
     """
     nxp = np.round(fx*np.asfarray(xp)).astype(np.int)
-    f = np.zeros(nxp.max()+1, dtype=np.float)
+    f = np.zeros(nxp.max()+1, dtype=float)
     f[nxp[1:-1]] = p
     return f
 
@@ -422,7 +422,7 @@ class BaseLoad(object):
         Nl = influence_line.size
         Nf = nxp.max()+1
         Nz = Nl+Nf-1
-        z = np.zeros(Nz, dtype=np.float)
+        z = np.zeros(Nz, dtype=float)
         for ni, pi in zip(nxp[1:-1], self.p):
             z[ni:ni+Nl] += pi * influence_line
         return z
@@ -432,7 +432,7 @@ class BaseLoad(object):
         return len(self.xp)-2
 
     def _getparray(self, p):
-        if isinstance(p, float) or isinstance(p, np.float):
+        if isinstance(p, float) or isinstance(p, float):
             v = np.array([p] * self.nloads)
         elif isinstance(p, int):
             v = np.array([float(p)] * self.nloads)
