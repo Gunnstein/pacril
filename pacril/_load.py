@@ -47,7 +47,7 @@ def get_loadvector(p, xp, fx=10.):
     ndarray
         The load vector.
     """
-    nxp = np.round(fx*np.asfarray(xp)).astype(np.int)
+    nxp = np.round(fx*np.asfarray(xp)).astype(int)
     f = np.zeros(nxp.max()+1, dtype=float)
     f[nxp[1:-1]] = p
     return f
@@ -418,7 +418,7 @@ class BaseLoad(object):
         ndarray
             The response of the signal after applying the load
         """
-        nxp = np.round(self.fx*np.asfarray(self.xp)).astype(np.int)
+        nxp = np.round(self.fx*np.asfarray(self.xp)).astype(int)
         Nl = influence_line.size
         Nf = nxp.max()+1
         Nz = Nl+Nf-1

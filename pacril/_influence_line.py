@@ -54,7 +54,7 @@ def get_il_simply_supported_beam(L, xi, fx=10., quantity='moment'):
     dx = 1. / float(fx)
     x = np.arange(0., np.round(L*fx) + 1) * dx
     l = np.zeros_like(x)
-    Nl = np.round(xi * x.size).astype(np.int)
+    Nl = np.round(xi * x.size).astype(int)
     if quantity.lower() == "moment":
         l[:Nl] = (xi-1.)*x[:Nl]/L
         l[Nl:] = (x[Nl:] / L - 1.) * xi

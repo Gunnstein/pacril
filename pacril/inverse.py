@@ -130,7 +130,7 @@ def find_loadmagnitude_vector(z, l, xp, fx=10.):
     z : ndarray
         Response vector
     """
-    nxp = np.round(xp*fx).astype(np.int)[1:-1]
+    nxp = np.round(xp*fx).astype(int)[1:-1]
     Nz = z.size
     Nl = l.size
     Nf = Nz - Nl + 1
