@@ -295,7 +295,7 @@ def get_standard_influence_line(influence_line_type, length, fx=10.):
     """
     fp = INFLUENCE_LINES[influence_line_type]
     xp = np.linspace(0., 1., 101)
-    N = np.round(length * fx).astype(np.int) + 1
+    N = np.round(length * fx).astype(int) + 1
     x = np.linspace(0., 1., N)
     return np.interp(x, xp, fp)
 
